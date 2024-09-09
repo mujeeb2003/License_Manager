@@ -1,5 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
-
+@import url('./index.css');
 *{
   margin: 0;
   padding: 0;
@@ -27,9 +27,14 @@ body{
 
 .top-container{
   background: #031224;
-  border-radius: 0 0 30px 30px;
+  /* border-radius: 0 0 30px 30px; */
   padding-bottom: 10px;
 }
+.top-container:nth-child(2){
+  border-radius: 0 0 30px 30px;
+  
+}
+
 
 .top-container .nav{
   display: flex;
@@ -151,18 +156,24 @@ body{
 }
 
 .top-container .status .items-list .item{
-  background: #e1e0fe;
+  background: var(--primary);
+  color:var(--grey);
+  height:150px;
   width: 25%;
-  padding: 20px;
+  padding: 20px 20px 0 20px;
   border-radius: 18px;
+
+  /* font-size: 20px; */
 }
 
 .top-container .status .items-list .item:nth-child(2){
-  background: #fffbeb;
+  background: var(--warning);
+  color:var(--grey);
 }
 
 .top-container .status .items-list .item:nth-child(3){
-  background: #bfdbfe;
+  background: var(--danger);
+  color: var(--grey);
 }
 
 .top-container .status .items-list .item:nth-child(4){
@@ -172,19 +183,19 @@ body{
 
 .top-container .status .items-list .item .info{
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   margin-bottom: 40px;
 }
 
 .top-container .status .items-list .item .info h5{
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 600;
   margin-bottom: 10px;
 }
 
 .top-container .status .items-list .item .info p{
-  font-size: 12px;
+  font-size: 16px;
   font-weight: 500;
 }
 
@@ -259,7 +270,7 @@ body{
 }
 
 .bottom-container .prog-status{
-  width: 70%;
+  width: 75%;
 }
 
 .bottom-container .prog-status .header,
@@ -420,7 +431,8 @@ body{
 }
 
 .bottom-container .upcoming{
-  width: 30%;
+  width: 25%;
+  height:fit-content;
   /* margin-left:auto; */
 }
 
@@ -436,6 +448,7 @@ body{
   align-items: center;
   gap: 6px;
 }
+
 
 .bottom-container .upcoming .dates .item h5{
   font-weight: 600;
@@ -567,7 +580,7 @@ body{
     width: 100%;
   }
   
-  .bottom-container .popular,
+  /* .bottom-container .popular, */
   .bottom-container .upcoming{
     width: 48%;
   }
@@ -614,9 +627,17 @@ body{
     font-size: 15px;
   }
   
-  .bottom-container .popular,
+  /* .bottom-container .popular, */
   .bottom-container .upcoming{
     width: 100%;
+    /* height: ; */
+  }
+  
+  .bottom-container .popular .yearly-table{
+    width:100%;
+    /* background-color: red;; */
+    overflow-x: scroll;
+
   }
   
 }
@@ -627,7 +648,13 @@ body{
   color: black;
   padding: 5px;
   border-radius: 4px;
+  word-break: break-word;
+  overflow: hidden;
+  
   /* word-wrap: 50%; */
+}
+.fc .fc-col-header-cell-cushion, .fc .fc-daygrid-day-number{
+  color:black;
 }
 
 .fc-daygrid-event-dot {
@@ -635,13 +662,29 @@ body{
 }
 
 .bottom-container .popular .yearly-table table{
-  width:100%;
+  width: 100%;
 
 }
 
-table, td,th{
+.bottom-container .popular .yearly-table table,.bottom-container .popular .yearly-table  td,.bottom-container .popular .yearly-table th{
   border:1px solid #444;
   padding:10px;
   border-collapse: collapse;
+  font-size: 14px;
+  font-weight: bold;
 }
 
+#iteminfo{
+  display:flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 28px;
+  padding: 10px;
+  background: #031224;
+  color: #f1f3f2;
+  border-radius: 50%;
+  width:50px;
+  height:50px;
+  text-align:center;
+  
+}
