@@ -90,8 +90,7 @@ body{
 .top-container .nav .right-section .profile{
   display: flex;
   align-items: center;
-  background: #1e293b;
-  padding: 0 10px;
+  background: var(--primary);
   border-radius: 50px;
   gap: 10px;
 }

@@ -11,19 +11,21 @@ function LicenseTable() {
         <div className="yearly-table">
             <table>
               <thead>
-                <td></td>
-                <td>Jan</td>
-                <td>Feb</td>
-                <td>Mar</td>
-                <td>Apr</td>
-                <td>May</td>
-                <td>Jun</td>
-                <td>Jul</td>
-                <td>Aug</td>
-                <td>Sep</td>
-                <td>Oct</td>
-                <td>Nov</td>
-                <td>Dec</td>
+                <tr>
+                  <td></td>
+                  <td>Jan</td>
+                  <td>Feb</td>
+                  <td>Mar</td>
+                  <td>Apr</td>
+                  <td>May</td>
+                  <td>Jun</td>
+                  <td>Jul</td>
+                  <td>Aug</td>
+                  <td>Sep</td>
+                  <td>Oct</td>
+                  <td>Nov</td>
+                  <td>Dec</td>
+                </tr>
               </thead>
               <tbody>
                 <tr>

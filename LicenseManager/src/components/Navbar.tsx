@@ -1,13 +1,25 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import { Button, Menu, MenuButton,MenuGroup, MenuItem, MenuList } from '@chakra-ui/react';
+import { useDispatch } from 'react-redux';
+import { Link, Navigate } from 'react-router-dom';
+import { AppDispatch } from '../types';
+import { logoutUser } from '../redux/user/userSlice';
+import { toast, ToastContainer } from 'react-toastify';
 
 function Navbar() {
+  const dispatch = useDispatch<AppDispatch>();
+  const handleLogout = async () => {
+    const res = await dispatch(logoutUser());
+    if(res.payload.message){
+      // toast.success(res.payload.message);
+      window.location.href = "/";
+    }
+  }
+  
   return (
     <div className="nav">
       <div className="logo">
         <Link to="/"><img src="../public/logo.png" alt="" style={{width: "auto", height: "40px"}}/></Link>
-        {/* <i className='bx bxl-codepen'></i>
-        <Link to="/">4Sight Technologies</Link> */}
+        
       </div>
 
       <div className="nav-links">
@@ -22,14 +34,19 @@ function Navbar() {
         <i className='bx bx-search'></i>
 
         <div className="profile">
-          <div className="info">
-            <img src="assets/profile.png" alt="Profile" />
-            <div>
-              <Link to="#">Alex Johnson</Link>
-              <p>Data Scientist</p>
-            </div>
-          </div>
-          <i className='bx bx-chevron-down'></i>
+              <Menu>
+                <MenuButton as={Button} colorScheme=''>
+                  <img src="assets/profile.png" alt="" />
+                  {/* Profile */}
+                  <i className='bx bx-chevron-down' style={{fontSize:"28px"}}></i>
+                </MenuButton>
+                <MenuList>
+                  <MenuGroup title='Profile'>
+                    <MenuItem>My Account</MenuItem>
+                    <MenuItem onClick={()=>handleLogout()}>Logout</MenuItem>
+                  </MenuGroup>
+                </MenuList>
+              </Menu>
         </div>
       </div>
     </div>

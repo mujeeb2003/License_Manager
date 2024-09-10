@@ -1,3 +1,4 @@
+import { store } from "./redux/store";
 
 export type userState = {
     user:User,
@@ -9,7 +10,6 @@ export type User = {
     user_id:number
     username:string
     email:string
-    password:string
 }
 
 export type licenseState = {
@@ -39,3 +39,7 @@ export type Item = {
     status: string;
     [key: string]: any; // Add index signature here
 };
+
+
+export type RootState = ReturnType<typeof store.getState>;
+export type AppDispatch = typeof store.dispatch;

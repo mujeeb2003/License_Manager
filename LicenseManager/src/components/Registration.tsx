@@ -1,41 +1,111 @@
-import React from 'react'
-import { Box, Container,Text,Tabs,Tab,TabList,TabPanel,TabPanels } from '@chakra-ui/react';
-import Login from './Authentication/Login';
-import Signup from './Authentication/Signup';
-
+import { useState, type ChangeEvent, type FormEvent} from "react";
+import "../../public/css/Login.css"
+import useLoginToggle from '../utils/login-sign';
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, type RootState } from "../types";
+import {userLogin,userSignup} from "../redux/user/userSlice";
+import {toast, ToastContainer} from "react-toastify"
+import 'react-toastify/dist/ReactToastify.css';
+import { useNavigate } from "react-router-dom";
 function Registration() {
-  return <Container  maxW={"xl"} centerContent>
-    <Box
-      display="flex"
-      justifyContent={"center"}
-      p={3}
-      bg={"white"}
-      w={"100%"}
-      m={"40px 0 15px 0"}
-      borderRadius={"lg"}
-      borderWidth={"1px"}
-    >
-      <Text fontSize={"4xl"} fontFamily={"Poppins"} color={"black"}>License Manager</Text>
-    </Box>
-    <Box bg={"white"} width={"100%"} p={4} borderRadius={"lg"} borderWidth={"1px"}>
-      <Tabs variant='soft-rounded'>
-        <TabList marginBottom={"1em"}>
-          <Tab width={"50%"}>Login</Tab>
-          <Tab width={"50%"}>Signup</Tab>
-        </TabList>
-        <TabPanels>
-          <TabPanel>
-            <Login />
-          </TabPanel>
-          <TabPanel>
-            <Signup />
-          </TabPanel>
-        </TabPanels>
-      </Tabs>
-    </Box>
-  </Container> 
+    const { user } = useSelector((state:RootState)=>state.user);
+    const dispatch = useDispatch<AppDispatch>();
+    const [login, toggleloginmode] = useLoginToggle();
+    const navigate = useNavigate();
+    const [formValue, setformValue] = useState({
+        email:'',
+        username:'',
+        password:''
+    })
 
-  
+    const handleChange = (e:ChangeEvent<HTMLInputElement>) => {
+        const {name,value} = e.target;
+        setformValue((prev)=>({...prev,[name]:value}));
+    }
+
+    const handleSignup = async (e:FormEvent<HTMLFormElement>) => { 
+        e.preventDefault();
+        try {
+            const result = await dispatch(userSignup({email:formValue.email,username:formValue.username,password:formValue.password})).unwrap();
+            if(result.message){
+                toggleloginmode();
+                return toast.success(result.message);
+            }
+
+        } catch (error:any) {
+            if (error && error.error) return toast.error(error.error);
+            console.log(error);
+        }
+    }
+    const handleLogin = async (e:FormEvent<HTMLFormElement>) => { 
+        e.preventDefault();
+        try {
+            const result = await dispatch(userLogin({email:formValue.email,password:formValue.password})).unwrap();
+            
+            if(result.message){
+                navigate("/home/dashboard");
+            }
+        } catch (error: any) {
+            if (error && error.error) return toast.error(error.error);
+            console.log(error);
+        }
+        
+    }
+
+  return (
+    <>
+    <div className="box">
+    <ToastContainer autoClose={3000}/>
+
+        <div className="box-form">
+            <div className="left">
+                <div className="overlay">
+                    <h1>License Manager</h1>
+                    <p>Welcome to License Manager, your one-stop solution for managing
+                    software licenses. Please login to continue.</p>
+                
+                </div>
+            </div>
+            
+            
+            <div className="right" id='login'>
+                <h5>Login</h5>
+                <p>Don't have an account? <a style={{color:"blue",cursor:"pointer"}} onClick={toggleloginmode}>Create Your Account</a> it takes less than a minute</p>
+                <form onSubmit={(e)=>handleLogin(e)}>
+                    <div className="inputs">
+                        <input type="email" required placeholder="email" name='email' defaultValue={formValue.email} onChange={(e)=>handleChange(e)}/>
+                        <br />
+                        <input type="password" minLength={6} required placeholder="password" name='password' defaultValue={formValue.password}  onChange={(e)=>handleChange(e)}/>
+                    </div>
+                    
+                    <br /><br />
+                                
+                    <button type="submit">Login</button>
+                </form>
+            </div>
+
+            <div className="right" id='signup'>
+                <h5>Sign up</h5>
+                <p>Already have an account? <a style={{color:"blue",cursor:"pointer"}} onClick={toggleloginmode}>Login Your Account</a> it takes less than a minute</p>
+                <form onSubmit={(e)=>handleSignup(e)}>
+                    <div className="inputs">
+                        <input type="text" required placeholder="username" name='username' defaultValue={formValue.username} onChange={(e)=>handleChange(e)}/>
+                        <br />
+                        <input type="email" required placeholder="email" name='email' defaultValue={formValue.email} onChange={(e)=>handleChange(e)}/>
+                        <br />
+                        <input type="password" minLength={8} required placeholder="password" name='password' defaultValue={formValue.password}  onChange={(e)=>handleChange(e)}/>
+                    </div>
+                    
+                    <br /><br />
+                                
+                    <button>Sign up</button>
+                </form>
+            </div>
+            
+        </div>
+    </div>
+    </>
+  )
 }
 
 export default Registration
