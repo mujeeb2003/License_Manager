@@ -55,8 +55,7 @@ function Registration() {
   return (
     <>
     <div className="box">
-    <ToastContainer autoClose={3000}/>
-
+      <ToastContainer autoClose={3000} theme="dark"/>
         <div className="box-form">
             <div className="left">
                 <div className="overlay">

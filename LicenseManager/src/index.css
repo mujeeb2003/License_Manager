@@ -10,12 +10,13 @@
     --grey: #eee;
     --dark-grey: #AAAAAA;
     --dark: #363949;
-    /* --danger: #D32F2F; */
-    --danger: #ff2828;
+    --danger: #e00f0f;
     --light-danger: #f7aab3;
-    /* --warning: #FBC02D; */
-    --warning: #ffc125;
+    --warning: orange;
     --light-warning: #FFF2C6;
     --success: #0b5b92;
     --light-success: #BBF7D0;
+    /* --danger: #D32F2F; */
+    /* --warning: #FBC02D; */
+    /* --warning: #ffc125; */
 }

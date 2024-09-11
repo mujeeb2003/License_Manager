@@ -1,11 +1,12 @@
 import { Button, Menu, MenuButton,MenuGroup, MenuItem, MenuList } from '@chakra-ui/react';
 import { useDispatch } from 'react-redux';
-import { Link, Navigate } from 'react-router-dom';
+import { Link, useLocation} from 'react-router-dom';
 import { AppDispatch } from '../types';
 import { logoutUser } from '../redux/user/userSlice';
-import { toast, ToastContainer } from 'react-toastify';
 
 function Navbar() {
+  const location = useLocation();
+  const isActive = (path:string) => location.pathname === path;
   const dispatch = useDispatch<AppDispatch>();
   const handleLogout = async () => {
     const res = await dispatch(logoutUser());
@@ -23,10 +24,10 @@ function Navbar() {
       </div>
 
       <div className="nav-links">
-        <Link to="/home/dashboard">Dashboard</Link>
-        <Link to="/home/licenses">Licenses</Link>
-        <Link to="/home/category">Category</Link>
-        <Link to="/home/vendors">Vendors</Link>
+        <Link to="/home/dashboard" id={isActive('/home/dashboard') ? 'isactive' : ''}>Dashboard</Link>
+        <Link to="/home/licenses"  id={isActive('/home/licenses') ? 'isactive' : ''}>Licenses</Link>
+        <Link to="/home/category"  id={isActive('/home/category') ? 'isactive' : ''}>Category</Link>
+        <Link to="/home/vendors"  id={isActive('/home/vendors') ? 'isactive' : ''}>Vendors</Link>
       </div>
 
       <div className="right-section">
@@ -34,11 +35,11 @@ function Navbar() {
         <i className='bx bx-search'></i>
 
         <div className="profile">
-              <Menu>
+              <Menu size={"sm"}>
                 <MenuButton as={Button} colorScheme=''>
                   <img src="assets/profile.png" alt="" />
                   {/* Profile */}
-                  <i className='bx bx-chevron-down' style={{fontSize:"28px"}}></i>
+                  <i className='bx bx-chevron-down' style={{fontSize:"22px"}}></i>
                 </MenuButton>
                 <MenuList>
                   <MenuGroup title='Profile'>

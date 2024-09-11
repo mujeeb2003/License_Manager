@@ -37,13 +37,18 @@ const syncDatabase = async (force = false) => {
 };
 
 const seedData = async () => {
-    await Category.bulkCreate([
-        { category_name: 'default' }
+    // await Category.bulkCreate([
+    //     { category_name: 'default' }
+    // ]);
+    await Status.bulkCreate([
+        { status_name: 'Up to Date' },
+        { status_name: 'Near to Expiry' },
+        { status_name: 'Expired' }
     ]);
     
     // console.log('Data seeded successfully.');
 };
-
+// seedData();
 syncDatabase(false);
 
 module.exports = {
