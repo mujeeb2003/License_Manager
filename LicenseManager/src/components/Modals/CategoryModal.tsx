@@ -1,6 +1,8 @@
 import {Modal,ModalOverlay,ModalContent,ModalHeader,ModalFooter,ModalBody,ModalCloseButton,Input,FormControl,FormLabel,Button,useDisclosure,FormErrorMessage} from '@chakra-ui/react';
 import { useState} from 'react';
-import type { categoryForm } from '../../types';
+import type { categoryForm, RootState } from '../../types';
+import { useSelector } from 'react-redux';
+import { toast } from 'react-toastify';
 
 function CategoryModal({ onSave }: { onSave: (data: categoryForm) => void }) {
 
@@ -8,6 +10,12 @@ function CategoryModal({ onSave }: { onSave: (data: categoryForm) => void }) {
     const [formData, setFormData] = useState<categoryForm>({
         category_name:""
     });
+    
+    const { isAdmin } = useSelector((state:RootState)=>state.user);
+
+    const handleClick = () =>{
+      !isAdmin ? toast.warning("Only Admins can add Categories") : onOpen();
+    }
     
     const [errors, setErrors] = useState({
         category_name:""
@@ -52,7 +60,7 @@ function CategoryModal({ onSave }: { onSave: (data: categoryForm) => void }) {
     
   return (
     <>
-    <Button onClick={onOpen} colorScheme="blue" mb={4} size={"sm"}>
+    <Button onClick={handleClick} colorScheme="blue" mb={4} size={"sm"}>
         Add New Category
     </Button>
     

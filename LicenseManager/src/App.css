@@ -236,7 +236,7 @@ body{
 .bottom-container .prog-status,
 .bottom-container .popular,
 .bottom-container .upcoming{
-  background: #fefefe;
+  background: #f6f6f6;
   padding: 20px;
   border-radius: 24px;
 }
@@ -611,21 +611,20 @@ body{
 
 /* In your CSS file */
 .fc-event {
-  background-color: #007bff;
+  background-color: var(--primary);
   color: black;
   padding: 5px;
   border-radius: 4px;
   word-break: break-word;
   overflow: hidden;
-  
-  /* word-wrap: 50%; */
+
 }
-.fc .fc-col-header-cell-cushion, .fc .fc-daygrid-day-number{
-  color:black;
+.fc-event:hover {
+  background-color: var(--secondary-color3);
 }
 
-.fc-daygrid-event-dot {
-  background-color: red;
+.fc .fc-col-header-cell-cushion, .fc .fc-daygrid-day-number{
+  color:black;
 }
 
 .bottom-container .popular .yearly-table table{

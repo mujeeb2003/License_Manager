@@ -26,8 +26,8 @@ function Navbar() {
       <div className="nav-links">
         <Link to="/home/dashboard" id={isActive('/home/dashboard') ? 'isactive' : ''}>Dashboard</Link>
         <Link to="/home/licenses"  id={isActive('/home/licenses') ? 'isactive' : ''}>Licenses</Link>
-        <Link to="/home/category"  id={isActive('/home/category') ? 'isactive' : ''}>Category</Link>
         <Link to="/home/vendors"  id={isActive('/home/vendors') ? 'isactive' : ''}>Vendors</Link>
+        <Link to="/home/category"  id={isActive('/home/category') ? 'isactive' : ''}>Category</Link>
       </div>
 
       <div className="right-section">

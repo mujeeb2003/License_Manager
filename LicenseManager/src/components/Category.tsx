@@ -1,12 +1,13 @@
 import { Table, Thead, Tbody, Tfoot, Tr, Th, Td, TableCaption, TableContainer, IconButton,Box, Flex, Button } from '@chakra-ui/react';
-import { DeleteIcon, EditIcon } from '@chakra-ui/icons';
+import { EditIcon } from '@chakra-ui/icons';
 import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { createCategory, deleteCategory } from '../redux/license/licenseSlice';
+import { createCategory, editCategory} from '../redux/license/licenseSlice';
 import { AppDispatch, type Category,type RootState,categoryForm } from '../types';
 import CategoryModal from './Modals/CategoryModal';
 import { toast, ToastContainer } from 'react-toastify';
 import AlertDialogS from './Dialog/AlertDialog';
+import CategoryEditModal from './Modals/CategoryEditModal';
 
 function Category() {
   const { categories } = useSelector((state: RootState) => state.license);
@@ -47,13 +48,29 @@ function Category() {
       if(res.payload.category){
         toast.success("Category Added Successfully");
       }
+      if(res.payload.error){
+        toast.error(res.payload.error);
+      }
+    }).catch((err)=>{
+      toast.error(err);
+    });
+  }
+  const handleEdit = (data:categoryForm & {category_id:number})=>{
+    console.log(data);
+    dispatch(editCategory(data)).then((res)=>{
+      if(res.payload.category){
+        toast.success("Category updated Successfully");
+      }
+      if(res.payload.error){
+        toast.error(res.payload.error);
+      }
     }).catch((err)=>{
       toast.error(err);
     });
   }
   return (
     <>
-      <ToastContainer autoClose={3000} theme="dark"/>
+      <ToastContainer autoClose={3000} theme="dark" stacked={true}/>
       <Box className="bottom-container license" display={'flex'} flexDirection={'column'} p={4}>
         <Flex justifyContent={'space-between'}  alignItems={'center'} direction={"column"}>
           <h1 style={{ color: 'var(--dark)',fontSize:'30px',fontWeight:'bold' }}>Category</h1> 
@@ -82,28 +99,9 @@ function Category() {
                   <Td textAlign={'center'}>{row.category_id}</Td>
                   <Td textAlign={'center'}>{row.category_name}</Td>
                   <Td textAlign={'right'}>
-                    {/* <IconButton
-                      mr={2}
-                      isRound
-                      variant="solid"
-                      colorScheme="red"
-                      icon={<DeleteIcon />}
-                      aria-label="Delete"
-                      onClick={()=>dispatch(deleteCategory({category_id:row.category_id})).then((res)=>{
-                        if(res.payload.message){
-                          toast.success(res.payload.message);
-                        }
-                      })}
-                    /> */}
+                    
                     <AlertDialogS category_id={row.category_id}/>
-                    <IconButton
-                      isRound
-                      variant="solid"
-                      colorScheme="blue"
-                      icon={<EditIcon />}
-                      aria-label="Edit"
-                      onClick={() => console.log('Edit', row.category_id)}
-                    />
+                    <CategoryEditModal category={row} onSave={handleEdit}/>
                   </Td>
                 </Tr>
               ))}

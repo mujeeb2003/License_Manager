@@ -2,11 +2,17 @@ import {Modal,ModalOverlay,ModalContent,ModalHeader,ModalFooter,ModalBody,ModalC
 import { useState } from 'react';
 import { type licenseForm, type RootState } from '../../types';
 import { useSelector } from 'react-redux';
+import { toast } from 'react-toastify';
 
 function LicenseModal({ onSave }: { onSave: (data: licenseForm) => void }) {
     const {categories,vendors} = useSelector((state:RootState)=>state.license);
-
     const { isOpen,onOpen, onClose } = useDisclosure();
+    const { isAdmin } = useSelector((state:RootState)=>state.user);
+
+    const handleClick = () =>{
+      !isAdmin ? toast.warning("Only Admins can add licenses") : onOpen();
+    }
+    
     const [formData, setFormData] = useState<licenseForm>({
         title: '',
         expiry_date: null,
@@ -79,7 +85,7 @@ function LicenseModal({ onSave }: { onSave: (data: licenseForm) => void }) {
     
     return (
         <>
-        <Button onClick={onOpen} colorScheme="blue" mb={4} size={"sm"}>
+        <Button onClick={handleClick} colorScheme="blue" mb={4} size={"sm"}>
         Add New License
         </Button>
         

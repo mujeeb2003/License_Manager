@@ -1,12 +1,13 @@
 import { Table, Thead, Tbody, Tfoot, Tr, Th, Td, TableCaption, TableContainer, IconButton, Box, Flex, Button } from '@chakra-ui/react';
-import { DeleteIcon, EditIcon } from '@chakra-ui/icons';
+import { EditIcon } from '@chakra-ui/icons';
 import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { createVendor, deleteVendor } from '../redux/license/licenseSlice';
+import { createVendor, editVendor } from '../redux/license/licenseSlice';
 import { AppDispatch, type RootState,type Vendor, type vendorForm } from '../types';
 import VendorModal from './Modals/VendorModal';
 import { toast, ToastContainer } from 'react-toastify';
 import AlertDialogS from './Dialog/AlertDialog';
+import VendorEditModal from './Modals/VendorEditModal';
 
 function Vendor() {
   const { vendors } = useSelector((state: RootState) => state.license);
@@ -49,6 +50,22 @@ function Vendor() {
       if(res.payload.vendor){
         toast.success("Vendor Added Successfully");
       }
+      if(res.payload.error){
+        toast.error(res.payload.error);
+      }
+    }).catch((err)=>{
+      toast.error(err);
+    })
+  }
+  const handleEdit = (data:vendorForm&{vendor_id:number})=>{
+    console.log(data);
+    dispatch(editVendor(data)).then((res)=>{
+      if(res.payload.vendor){
+        toast.success("Vendor Updated Successfully");
+      }
+      if(res.payload.error){
+        toast.error(res.payload.error);
+      }
     }).catch((err)=>{
       toast.error(err);
     })
@@ -56,7 +73,7 @@ function Vendor() {
   
   return (
     <>
-      <ToastContainer autoClose={3000} theme="dark"/>
+      <ToastContainer autoClose={3000} theme="dark" stacked={true}/>
       <Box className="bottom-container license" display={'flex'} flexDirection={'column'} p={4}>
         <Flex justifyContent={'space-between'}  alignItems={'center'} direction={"column"}>
           <h1 style={{ color: 'var(--dark)',fontSize:'30px',fontWeight:'bold' }}>Vendors</h1> 
@@ -75,7 +92,18 @@ function Vendor() {
                 <Th textAlign={'center'} onClick={() => handleSort('vendor_name')} cursor="pointer">
                   Vendor Name {sortField === 'vendor_name' && (sortDirection === 'asc' ? '▲' : '▼')}
                 </Th>
-                
+                <Th textAlign={'center'} onClick={() => handleSort('vendor_email')} cursor="pointer">
+                  Vendor Email {sortField === 'vendor_email' && (sortDirection === 'asc' ? '▲' : '▼')}
+                </Th>
+                <Th textAlign={'center'} onClick={() => handleSort('vendor_representative')} cursor="pointer">
+                  Vendor Representative {sortField === 'vendor_representative' && (sortDirection === 'asc' ? '▲' : '▼')}
+                </Th>
+                <Th textAlign={'center'} onClick={() => handleSort('vendor_rep_email')} cursor="pointer">
+                  Vendor Representative Email{sortField === 'vendor_rep_email' && (sortDirection === 'asc' ? '▲' : '▼')}
+                </Th>
+                <Th textAlign={'center'} onClick={() => handleSort('vendor_rep_phone')} cursor="pointer">
+                  Vendor Representative Phone{sortField === 'vendor_rep_phone' && (sortDirection === 'asc' ? '▲' : '▼')}
+                </Th>
                 <Th textAlign={'center'}>Actions</Th>
               </Tr>
             </Thead>
@@ -84,29 +112,13 @@ function Vendor() {
                 <Tr key={row.vendor_id}>
                   <Td textAlign={'center'}>{row.vendor_id}</Td>
                   <Td textAlign={'center'}>{row.vendor_name}</Td>
+                  <Td textAlign={'center'}>{row.vendor_email}</Td>
+                  <Td textAlign={'center'}>{row.vendor_representative}</Td>
+                  <Td textAlign={'center'}>{row.vendor_rep_email}</Td>
+                  <Td textAlign={'center'}>{row.vendor_rep_phone}</Td>
                   <Td textAlign={'right'}>
-                    {/* <IconButton
-                      mr={2}
-                      isRound
-                      variant="solid"
-                      colorScheme="red"
-                      icon={<DeleteIcon />}
-                      aria-label="Delete"
-                      onClick={() => dispatch(deleteVendor({vendor_id:row.vendor_id})).then((res)=>{
-                        if(res.payload.vendor){
-                          toast.success("Vendor deleted Successfully");
-                        }
-                      })}
-                    /> */}
                     <AlertDialogS vendor_id={row.vendor_id}/>
-                    <IconButton
-                      isRound
-                      variant="solid"
-                      colorScheme="blue"
-                      icon={<EditIcon />}
-                      aria-label="Edit"
-                      onClick={() => console.log('Edit', row.vendor_id)}
-                    />
+                    <VendorEditModal onSave={handleEdit} vendor={row} />
                   </Td>
                 </Tr>
               ))}

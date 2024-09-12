@@ -11,7 +11,6 @@ const User = db.define('User', {
     username: {
         type: DataTypes.STRING,
         allowNull: false,
-        // unique: true // Unique constraint
     },
     email: {
         type: DataTypes.STRING,
@@ -21,6 +20,10 @@ const User = db.define('User', {
     password: {
         type: DataTypes.STRING,
         allowNull: false
+    },
+    isAdmin : {
+        type: DataTypes.BOOLEAN,
+        defaultValue:false
     }
 }, {
     tableName: 'users'

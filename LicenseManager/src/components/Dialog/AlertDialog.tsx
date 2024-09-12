@@ -1,40 +1,55 @@
 import { AlertDialog, AlertDialogBody, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogOverlay, Button, IconButton, useDisclosure } from "@chakra-ui/react"
 import React from "react"
-import { AppDispatch, DialogProps } from "../../types"
+import { AppDispatch, DialogProps, type RootState } from "../../types"
 import { DeleteIcon } from "@chakra-ui/icons";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { deleteCategory, deleteLicense, deleteVendor } from "../../redux/license/licenseSlice";
 import { toast } from "react-toastify";
 
 export default function AlertDialogS({license_id,vendor_id,category_id}:DialogProps) {
     const { isOpen, onOpen, onClose } = useDisclosure()
+    const { isAdmin } = useSelector((state:RootState)=>state.user);
+
     const cancelRef = React.useRef<HTMLButtonElement>(null);
     const dispatch = useDispatch<AppDispatch>();
  
+    const handleClick = () =>{
+        !isAdmin ? toast.warning("Only Power Admins can delete") : onOpen();
+    }
     const handleDelete = () =>{
       if(category_id){
         dispatch(deleteCategory({category_id:category_id})).then((res)=>{
             if(res.payload.message){
-                toast.success(res.payload.message);
+                return toast.success(res.payload.message);
+            }
+            if(res.payload.error){
+              return toast.error(res.payload.error);
             }
         })
       }
       if(license_id){
         dispatch(deleteLicense({license_id:license_id})).then((res)=>{
-            if(res.payload.message){
-                toast.success(res.payload.message);
-            }
+          if(res.payload.message){
+            return toast.success(res.payload.message);
+          }
+          if(res.payload.error){
+            return toast.error(res.payload.error);
+          }
         })
       }
       if(vendor_id){
         dispatch(deleteVendor({vendor_id:vendor_id})).then((res)=>{
             if(res.payload.message){
-                toast.success(res.payload.message);
+                return toast.success(res.payload.message);
+            }
+            if(res.payload.error){
+              return toast.error(res.payload.error);
             }
         })
       }
       onClose();
     }
+
     return (
       <>
         <IconButton
@@ -44,13 +59,7 @@ export default function AlertDialogS({license_id,vendor_id,category_id}:DialogPr
             colorScheme="red"
             icon={<DeleteIcon />}
             aria-label="Delete"
-            onClick={onOpen}
-            //     onClick={()=>dispatch(deleteCategory({category_id:row.category_id})).then((res)=>{
-            //     if(res.payload.message){
-            //         toast.success(res.payload.message);
-            //     }
-            // })
-            // }
+            onClick={handleClick}
         />
   
         <AlertDialog

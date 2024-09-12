@@ -37,7 +37,7 @@ module.exports.login = async (req,res)=>{
         const token = generateToken(user);
         res.cookie("token", token, { httpOnly: true, secure: true });
         
-        res.status(200).send({user:{email:user.email,username:user.username,user_id:user.user_id},message:"login successfull"});
+        res.status(200).send({user:{email:user.email,username:user.username,user_id:user.user_id,isAdmin:user.isAdmin},message:"login successfull"});
         
     } catch (error) {
         return res.status(500).send({error:error.message});

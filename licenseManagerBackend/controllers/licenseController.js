@@ -93,10 +93,59 @@ module.exports.deleteLicense = async (req,res) => {
         const license = await License.destroy({where:{license_id}});
         
         if(!license) return res.status(400).send({error:"License not found"});
-
+        
         return res.status(200).send({license:{license_id:license_id},message:"License Deleted Successfully"});
-
+        
     } catch (error) {
         return res.status(500).send({error:error.message});
     }
+}
+
+module.exports.editLicense = async (req,res) => {
+    const {license_id , title, expiry_date, "Vendor.vendor_id": vendor_id, "Category.category_id":category_id} = req.body;
+    const user_id = req.user.user_id;
+    
+    try {
+        let license = await License.findOne({where:{license_id}});
+        
+        if(!license) return res.status(404).send({error:"License not found"});
+        
+        license.title= title;
+        license.expiry_date = expiry_date;
+        license.vendor_id = vendor_id;
+        license.category_id = category_id;
+        
+        await license.save();
+        
+        license = await License.findOne({where:{license_id:license.license_id},
+            attributes:{
+                exclude:['createdAt','updatedAt',"user_id","vendor_id","category_id","status_id"],
+            },
+            include:[
+                {
+                    model:User,
+                    attributes:["username"]
+                },
+                {
+                    model:Vendor,
+                    attributes:["vendor_name"]
+                },
+                {
+                    model:Category,
+                    attributes:["category_name"]
+                },
+                {
+                    model:Status,
+                    attributes:["status_name"]
+                },
+            ],
+            raw:true,
+            order:[["expiry_date","ASC"]]
+        });
+        
+        return res.status(200).send({license});
+    } catch (error) {
+        return res.status(500).send({error:error.message});
+    }
+    
 }

@@ -17,7 +17,6 @@ app.use(cookieParser())
 app.use(bodyParser.json())
 app.use(cors());
 
-
 app.use('/',router);
 app.use('/license',licenseRouter);
 app.use('/user',userRouter);

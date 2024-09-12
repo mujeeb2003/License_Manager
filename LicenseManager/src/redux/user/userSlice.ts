@@ -8,6 +8,7 @@ const initialState:userState = {
         email:'',
         username:'',
     },
+    isAdmin:false,
     loading:false,
     error:""
 }
@@ -73,7 +74,8 @@ const userSlice = createSlice({
         })
         builder.addCase(userLogin.fulfilled,(state,{payload})=>{
             state.loading=false;
-            state.user=payload.user
+            state.user=payload.user;
+            state.isAdmin = payload.user.isAdmin;
         })
         builder.addCase(userLogin.rejected,(state,{payload})=>{
             state.loading=false;

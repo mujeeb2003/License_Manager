@@ -34,7 +34,6 @@ export const getLicenseOpt = createAsyncThunk("license/getLicenseOpt",async(_und
 })
 
 export const createLicense = createAsyncThunk("license/createLicense",async(data:licenseForm,{rejectWithValue})=>{
-    console.log("data from slice ",data);
     try {
         const res = await axios.post("/api/license/createLicense",data);
         return res.data;
@@ -99,6 +98,48 @@ export const deleteVendor = createAsyncThunk("license/deleteVendor",async(data:{
         if(error.response && error.response.data) return rejectWithValue(error.response.data);
 
         return rejectWithValue({error:error.message})
+    }
+})
+
+export const editLicense = createAsyncThunk("license/editLicense",async(data:licenseForm & {license_id:number},{rejectWithValue}) => {
+    console.log("License",data);
+    try {
+        const res = await axios.post("/api/license/editLicense",data);
+        return res.data;
+
+    } catch (error:any) {
+        
+        if(error.response && error.response.data) return rejectWithValue(error.response.data);
+
+        rejectWithValue({error:error.message})
+    }
+})
+
+export const editCategory = createAsyncThunk("license/editCategory",async(data:categoryForm & {category_id:number},{rejectWithValue}) => {
+    console.log("Category",data);
+    try {
+        const res = await axios.post("/api/editCategory",data);
+        return res.data;
+
+    } catch (error:any) {
+        
+        if(error.response && error.response.data) return rejectWithValue(error.response.data);
+
+        rejectWithValue({error:error.message})
+    }
+})
+
+export const editVendor = createAsyncThunk("license/editVendor",async(data:vendorForm & {vendor_id:number},{rejectWithValue}) => {
+    console.log("Vendor",data);
+    try {
+        const res = await axios.post("/api/editVendor",data);
+        return res.data;
+
+    } catch (error:any) {
+        
+        if(error.response && error.response.data) return rejectWithValue(error.response.data);
+
+        rejectWithValue({error:error.message})
     }
 })
 
@@ -195,6 +236,45 @@ const licenseSlice = createSlice({
             state.vendors = state.vendors.filter((vendor)=> vendor.vendor_id !== payload.vendor.vendor_id);            
         })
         builder.addCase(deleteVendor.rejected,(state,{payload})=>{
+            state.loading=false;
+            state.error=payload as string;
+        })
+        builder.addCase(editLicense.pending,(state)=>{
+            state.loading=true;
+        })
+        builder.addCase(editLicense.fulfilled,(state,{payload})=>{
+            state.loading=false;
+            state.licenses = state.licenses.map((license)=>{
+                return license.license_id == payload.license.license_id ? payload.license : license
+            })           
+        })
+        builder.addCase(editLicense.rejected,(state,{payload})=>{
+            state.loading=false;
+            state.error=payload as string;
+        })
+        builder.addCase(editCategory.pending,(state)=>{
+            state.loading=true;
+        })
+        builder.addCase(editCategory.fulfilled,(state,{payload})=>{
+            state.loading=false;
+            state.categories = state.categories.map((category)=>{
+                return category.category_id == payload.category.category_id ? payload.category : category
+            })
+        })
+        builder.addCase(editCategory.rejected,(state,{payload})=>{
+            state.loading=false;
+            state.error=payload as string;
+        })
+        builder.addCase(editVendor.pending,(state)=>{
+            state.loading=true;
+        })
+        builder.addCase(editVendor.fulfilled,(state,{payload})=>{
+            state.loading=false;
+            state.vendors = state.vendors.map((vendor)=>{
+                return vendor.vendor_id == payload.vendor.vendor_id ? payload.vendor : vendor
+            })
+        })
+        builder.addCase(editVendor.rejected,(state,{payload})=>{
             state.loading=false;
             state.error=payload as string;
         })

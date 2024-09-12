@@ -2,6 +2,7 @@ import { store } from "./redux/store";
 
 export type userState = {
     user:User,
+    isAdmin:boolean,
     error:string,
     loading:boolean
 }
@@ -32,6 +33,7 @@ export type License = {
 }
 
 export type Filters = {
+    title:string|null;
     "User.username": string;
     "Vendor.vendor_name": string;
     "Category.category_name": string;
@@ -44,13 +46,17 @@ export type Status = {
 }
 export type Vendor = {
     vendor_id:number,
-    vendor_name:string
+    vendor_name:string,
+    vendor_email:string,
+    vendor_representative:string,
+    vendor_rep_phone:string,
+    vendor_rep_email:string,
 }
+
 export type Category = {
     category_id:number,
     category_name:string
 }
-
 export type licenseForm = {
     title: string,
     expiry_date: Date | null,
@@ -59,17 +65,21 @@ export type licenseForm = {
     // "Status.status_id": number
 }
 export type categoryForm = {
-    category_name:string
+    category_name:string,
 }
 export type vendorForm = {
-    vendor_name:string
+    vendor_name:string,
+    vendor_email:string,
+    vendor_representative:string,
+    vendor_rep_phone:string,
+    vendor_rep_email:string,
 }
-
 export type DialogProps = {
     license_id?:number
     category_id?:number
     vendor_id?:number
 }
+
 
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;

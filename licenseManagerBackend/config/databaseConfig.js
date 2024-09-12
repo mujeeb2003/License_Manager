@@ -1,13 +1,14 @@
 const {Sequelize} = require("sequelize");
+require("dotenv").config();
 
 const dbConfig = {
-    host: "localhost",
-    user:"root",
-    pass:"",
-    port:3306
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    pass: process.env.DB_CHECK,
+    port: process.env.DB_PORT
 };
 
-const db = new Sequelize("lic_man",dbConfig.user,dbConfig.pass,{
+const db = new Sequelize(process.env.DB_NAME,dbConfig.user,dbConfig.pass,{
     host:dbConfig.host,
     dialect:"mysql",
     port:dbConfig.port,
@@ -21,10 +22,8 @@ const db = new Sequelize("lic_man",dbConfig.user,dbConfig.pass,{
     try {
         await db.authenticate();
         console.log("Database connection has been established successfully.");
-
         // Sync all models
-        // await db.sync({ alter: true }); // { force: true } if you want to drop existing tables
-        // console.log('Database synchronized successfully.');
+        await db.sync({ alter: true }); // { force: true } if you want to drop existing tables
     } catch (error) {
         console.error('Error synchronizing the database:', error);
     }

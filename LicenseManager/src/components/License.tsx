@@ -1,19 +1,23 @@
-import { Table, Thead, Tbody, Tfoot, Tr, Th, Td, TableCaption, TableContainer, IconButton, Input, Select, Box, Flex, Button } from '@chakra-ui/react';
-import { DeleteIcon, EditIcon } from '@chakra-ui/icons';
+import { Table, Thead, Tbody, Tfoot, Tr, Th, Td, TableCaption, TableContainer, IconButton, Input, Select, Box, Flex, Button, Accordion, AccordionItem, AccordionButton, AccordionIcon, AccordionPanel } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { createLicense, deleteLicense, getLicenses } from '../redux/license/licenseSlice';
+import { createLicense, editLicense, getLicenses } from '../redux/license/licenseSlice';
 import { AppDispatch, type Filters, type License, type licenseForm, type RootState } from '../types';
 import LicenseModal from './Modals/LicenseModal';
 import { ToastContainer,toast } from 'react-toastify';
 import AlertDialogS from './Dialog/AlertDialog';
+import DownloadCSV from '../utils/DownloadCSV';
+import getLicense from '../utils/GetLicenses';
+import LicenseEditModal from './Modals/LicenseEditModal';
+
 function License() {
   const { licenses } = useSelector((state: RootState) => state.license);
   const dispatch = useDispatch<AppDispatch>();
 
-  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   const [sortField, setSortField] = useState<keyof License>('expiry_date');
   const [filters, setFilters] = useState<Filters>({
+    title:getLicense(),
     'User.username': '',
     'Category.category_name': '',
     'Vendor.vendor_name': '',
@@ -39,6 +43,16 @@ function License() {
     setFilters((prev) => ({ ...prev, [name]: value }));
     setCurrentPage(1); // Reset to page 1 after filtering
   };
+
+  const handleFilterClear = () => {
+    setFilters({
+      title:"",
+      "Category.category_name":"",
+      "Status.status_name":"",
+      "User.username":"",
+      "Vendor.vendor_name":""
+    })
+  }
   // Filter data
   const filteredData = licenses.filter((item) =>
     Object.keys(filters).every((key) => {
@@ -47,6 +61,7 @@ function License() {
       return filters[filterKey] ? itemValue.includes(filters[filterKey].toLowerCase()) : true;
     })
   );
+
   // Sort data
   const sortedData = [...filteredData].sort((a, b) => {
     if (a[sortField] < b[sortField]) return sortDirection === 'asc' ? -1 : 1;
@@ -67,62 +82,99 @@ function License() {
   };
 
   const handleSubmit = (data:licenseForm)=>{
-    console.log(data);
     dispatch(createLicense(data)).then((res)=>{
       if(res.payload.license){
         toast.success("License Added Successfully");
+      }
+      if(res.payload.error){
+        toast.error(res.payload.error);
       }
     }).catch((err)=>{
       toast.error(err);
     });
   }
+
+  const handleEdit = (data:licenseForm & {license_id:number})=>{
+    dispatch(editLicense(data)).then((res)=>{
+      if(res.payload.license){
+        toast.success("License Updated Successfully");
+      }
+      if(res.payload.error){
+        toast.error(res.payload.error);
+      }
+    }).catch((err)=>{
+      toast.error(err);
+    });
+  }
+
   return (
     <>
-      <ToastContainer autoClose={3000} theme="dark"/>
+      <ToastContainer autoClose={3000} theme="dark" stacked={true}/>
       <Box className="bottom-container license" display={'flex'} flexDirection={'column'} p={4}>
         <Flex justifyContent={'space-between'}  alignItems={'center'} direction={"column"}>
           <h1 style={{ color: 'var(--dark)',fontSize:'30px',fontWeight:'bold' }}>Licenses</h1> 
-        
-          <Flex direction="row" gap={4} justifyContent={'flex-end'} alignItems={'center'}>
-              {/* Filters */}
-
-              <Box>
-                <Input
-                  borderRadius={'lg'}
-                  size={'sm'}
-                  placeholder="Filter by user"
-                  name="User.username"
-                  value={filters['User.username']}
-                  onChange={handleFilterChange}
-                />
-              </Box>
-              <Box>
-                <Input
-                  borderRadius={'lg'}
-                  size={'sm'}
-                  placeholder="Filter by Vendor"
-                  name="Vendor.vendor_name"
-                  value={filters['Vendor.vendor_name']}
-                  onChange={handleFilterChange}
-                />
-              </Box>
-              <Box>
-                <Select
-                  borderRadius={'lg'}
-                  size={'sm'}
-                  placeholder="Filter by Status"
-                  name="Status.status_name"
-                  value={filters['Status.status_name']}
-                  onChange={handleFilterChange}
-                >
-                  <option value="Up to Date">Up to Date</option>
-                  <option value="Near to Expiry">Near to Expiry</option>
-                  <option value="Expired">Expired</option>
-                </Select>
-              </Box>
-              <Box mt={4}>
-                  <LicenseModal onSave={handleSubmit}/>
-              </Box>
+          <Accordion allowToggle transitionDuration={'0.3s'} mt={4}>
+          <AccordionItem>
+            <h2>
+              <AccordionButton>
+                <Box textAlign='center'>
+                  Filter Licenses
+                </Box>
+                <AccordionIcon ml={'auto'}/>
+              </AccordionButton>
+            </h2>
+            <AccordionPanel>
+              <Flex direction="row" gap={4} justifyContent={'center'} alignItems={'center'}>
+                {/* Filters */}
+                <Box>
+                  <Input
+                    borderRadius={'lg'}
+                    size={'sm'}
+                    placeholder="Filter by user"
+                    name="User.username"
+                    value={filters['User.username']}
+                    onChange={handleFilterChange}
+                  />
+                </Box>
+                <Box>
+                  <Input
+                    borderRadius={'lg'}
+                    size={'sm'}
+                    placeholder="Filter by Vendor"
+                    name="Vendor.vendor_name"
+                    value={filters['Vendor.vendor_name']}
+                    onChange={handleFilterChange}
+                  />
+                </Box>
+                <Box>
+                  <Select
+                    borderRadius={'lg'}
+                    size={'sm'}
+                    placeholder="Filter by Status"
+                    name="Status.status_name"
+                    value={filters['Status.status_name']}
+                    onChange={handleFilterChange}
+                  >
+                    <option value="Up to Date">Up to Date</option>
+                    <option value="Near to Expiry">Near to Expiry</option>
+                    <option value="Expired">Expired</option>
+                  </Select>
+                </Box>
+                <Box>
+                    <Button onClick={handleFilterClear} size={"sm"} colorScheme='red'>Clear Filter</Button>
+                </Box>
+              </Flex>
+            </AccordionPanel>
+          </AccordionItem>
+          </Accordion>
+          <Flex direction="row" gap={4} width={'100%'} justifyContent={'flex-end'} alignItems={'center'}>
+            <Box mt={4} >
+              <LicenseModal onSave={handleSubmit}/>
+            </Box>
+            <Box mt={4} >
+              {/* <Button >Download CSV</Button> */}
+              <DownloadCSV data={filteredData} fileName='Licenses'/>
+            </Box>
           </Flex>
         </Flex>
         <TableContainer>
@@ -161,29 +213,9 @@ function License() {
                   <Td>{row['Category.category_name']}</Td>
                   <Td>{row['Status.status_name']}</Td>
                   <Td>
-                    {/* <IconButton
-                      mr={2}
-                      isRound
-                      variant="solid"
-                      colorScheme="red"
-                      icon={<DeleteIcon />}
-                      aria-label="Delete"
-                      onClick={() => dispatch(deleteLicense({license_id:row.license_id})).then((res)=>{
-                        if(res.payload.message){
-                          toast.success("License deleted Successfully");
-                        }
-                      })}
-                    /> */}
                     <AlertDialogS license_id={row.license_id}/>
-
-                    <IconButton
-                      isRound
-                      variant="solid"
-                      colorScheme="blue"
-                      icon={<EditIcon />}
-                      aria-label="Edit"
-                      onClick={() => console.log('Edit', row.license_id)}
-                    />
+                    <LicenseEditModal license={row} onSave={handleEdit}/>
+                      
                   </Td>
                 </Tr>
               ))}

@@ -1,63 +1,62 @@
-import React from 'react'
+import React from 'react';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
+import { useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom'; // for navigation
+import type { RootState, License } from '../../types';
 
 function LicenseCalendar() {
-    const events = [
-        { title: 'License A expires', start: new Date('2024-09-07') },
-        { title: 'License A2 expires', start: new Date('2024-09-07') },
-        { title: 'License B expires', start: new Date('2024-09-15') },
-        { title: 'License C expires', start: new Date('2024-09-20') }
-      ];
-    return (
-    
-      <div className="prog-status">
+  const { licenses } = useSelector((state: RootState) => state.license);
+  const navigate = useNavigate();
+
+  // Map licenses to FullCalendar events
+  const events = licenses.map((license: License) => ({
+    title: `${license.title}`, // Event title
+    start: new Date(license.expiry_date), // Event date
+    id: license.license_id.toString() // For identifying the event
+  }));
+
+  // Handle event click and redirect with filter
+  const handleEventClick = (eventInfo: any) => {
+    const clickedLicense = licenses.find((license) => license.license_id === parseInt(eventInfo.event.id));
+
+    if (clickedLicense) {
+      // Navigate to the licenses page and apply filter by title
+      navigate(`/home/licenses?title=${encodeURIComponent(clickedLicense.title)}`);
+    }
+  };
+
+  return (
+    <div className="prog-status">
       <div className="header">
-          <h4>License Expiry</h4>
-          <div className="tabs">
-              {/* <a href="#" className="active">1Y</a>
-              <a href="#">6M</a>
-              <a href="#">3M</a> */}
-          </div>
+        <h4>License Expiry</h4>
       </div>
 
-      {/* <div className="details">
-          <div className="item">
-              <h2>3.45</h2>
-              <p>Current GPA</p>
-          </div>
-          <div className="separator"></div>
-          <div className="item">
-              <h2>4.78</h2>
-              <p>ClassName Average GPA</p>
-          </div>
-      </div> */}
       <FullCalendar
-          plugins={[dayGridPlugin]}
-          initialView="dayGridMonth"
-          events={events}
-          height="auto" // Adjusts the height dynamically
-
-          eventContent={renderEventContent}
-          headerToolbar={{
+        plugins={[dayGridPlugin]}
+        initialView="dayGridMonth"
+        events={events}
+        height="auto" // Adjusts the height dynamically
+        eventContent={renderEventContent} // Render custom event content
+        headerToolbar={{
           left: 'prev,next today',
           center: 'title',
           right: 'dayGridMonth,dayGridWeek'
-          }} // Customize toolbar options
+        }} // Customize toolbar options
+        eventClick={handleEventClick} // Handle event click
+        
       />
-
-  </div>
-    
-  )
+    </div>
+  );
 }
 
-function renderEventContent(eventInfo: { timeText: string; event: { title: string } }) {
+// Renders the title for each event
+function renderEventContent(eventInfo: { timeText: string; event: { title: string} }) {
   return (
     <>
-      {/* <b>{eventInfo.timeText}</b> */}
-      <i>{eventInfo.event.title}</i>
+      <i style={{cursor:'pointer'}}>{eventInfo.event.title}</i>
     </>
   );
 }
 
-export default LicenseCalendar
+export default LicenseCalendar;

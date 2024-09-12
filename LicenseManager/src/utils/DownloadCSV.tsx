@@ -1,9 +1,9 @@
 import React from 'react';
-import type { License,Item } from '../types';
+import type { License} from '../types';
 import {Button} from "@chakra-ui/react"
 
-const DownloadCSV = ({ data, fileName }:{data:Item[],fileName:string}) => {
-    const convertToCSV = (objArray: string | Item[]) => {
+const DownloadCSV = ({ data, fileName }:{data:License[],fileName:string}) => {
+    const convertToCSV = (objArray: string | License[]) => {
         const array = typeof objArray !== 'object' ? JSON.parse(objArray) : objArray;
         let str = '';
         
@@ -20,7 +20,10 @@ const DownloadCSV = ({ data, fileName }:{data:Item[],fileName:string}) => {
     };
     
     const downloadCSV = () => {
-        const csvData = new Blob([convertToCSV(data)], { type: 'text/csv' });
+        const header = Object.keys(data[0]).join(',') + '\r\n';
+        const csvData = new Blob([header + convertToCSV(data)], { type: 'text/csv' });
+        
+        // const csvData = new Blob([convertToCSV(data)], { type: 'text/csv' });
         const csvURL = URL.createObjectURL(csvData);
         const link = document.createElement('a');
         link.href = csvURL;
@@ -31,7 +34,7 @@ const DownloadCSV = ({ data, fileName }:{data:Item[],fileName:string}) => {
     };
     
     return (
-        <Button onClick={downloadCSV} size={'sm'} colorScheme={'blue'}>Download CSV</Button>
+        <Button onClick={downloadCSV} colorScheme="blue" mb={4} size={"sm"}>Download CSV</Button>
     );
 }
 

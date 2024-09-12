@@ -1,12 +1,15 @@
-import React from 'react'
+import { useSelector } from "react-redux"
+import type { RootState } from "../../types"
 
 function LicenseTable() {
+  const { licenses } = useSelector((state:RootState)=>state.license);
+  
   return (
     <div className="bottom-container">
     <div className="popular">
         <div className="header">
             <h4>Licenses Yearly Overview</h4>
-            <a href="#"># Expiry</a>
+            <a aria-disabled># Expiry</a>
         </div>
         <div className="yearly-table">
             <table>
@@ -29,37 +32,21 @@ function LicenseTable() {
               </thead>
               <tbody>
                 <tr>
-                  <td>2024</td>
-                  <td>0</td>
-                  <td>0</td>
-                  <td>0</td>
-                  <td>0</td>
-                  <td>0</td>
-                  <td>0</td>
-                  <td>0</td>
-                  <td>0</td>
-                  <td>0</td>
-                  <td>0</td>
-                  <td>0</td>
-                  <td>0</td>
+                  <td>{new Date().getFullYear()}</td>
+                  {Array.from({length: 12}).map((_, i) => {
+                    const style = i < new Date().getMonth() ? {color: 'var(--dark-grey)'} : {};
+                    return (
+                    <td key={i} style={style}>{licenses.filter(license => new Date(license.expiry_date).getFullYear() === new Date().getFullYear() && new Date(license.expiry_date).getMonth() === i).length}</td>
+                  )
+                  })}
                 </tr>
                 <tr>
-                  <td>2025</td>
-                  <td>1</td>
-                  <td>1</td>
-                  <td>1</td>
-                  <td>1</td>
-                  <td>1</td>
-                  <td>1</td>
-                  <td>3</td>
-                  <td>3</td>
-                  <td>3</td>
-                  <td>0</td>
-                  <td>3</td>
-                  <td>3</td>
+                <td>{new Date().getFullYear()+1}</td>
+                  {Array.from({length: 12}).map((_, i) => (
+                    <td key={i}>{licenses.filter(license => new Date(license.expiry_date).getFullYear() === new Date().getFullYear()+1 && new Date(license.expiry_date).getMonth() === i).length}</td>
+                  ))}
                 </tr>
               </tbody>
-
             </table>
         </div>
         

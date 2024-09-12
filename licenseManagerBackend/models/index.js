@@ -17,9 +17,12 @@ const syncDatabase = async (force = false) => {
         for (const model of models) {
             await model.sync({ force });
         }
-        
         //   await db.query('SET FOREIGN_KEY_CHECKS = 1');
         
+        User.sync({alter:true});
+        Vendor.sync({alter:true});
+        Category.sync({alter:true});
+
         License.belongsTo(User, { foreignKey: 'user_id' });
         License.belongsTo(Vendor, { foreignKey: 'vendor_id' });
         License.belongsTo(Category, { foreignKey: 'category_id' });
@@ -37,9 +40,9 @@ const syncDatabase = async (force = false) => {
 };
 
 const seedData = async () => {
-    // await Category.bulkCreate([
-    //     { category_name: 'default' }
-    // ]);
+    await Category.bulkCreate([
+        { category_name: 'default' }
+    ]);
     await Status.bulkCreate([
         { status_name: 'Up to Date' },
         { status_name: 'Near to Expiry' },

@@ -11,7 +11,23 @@ const Vendor = db.define('Vendor', {
     vendor_name: {
         type: DataTypes.STRING,
         allowNull: false,
-        
+        unique:true
+    },
+    vendor_email:{
+        type:DataTypes.STRING,
+        allowNull:false
+    },
+    vendor_representative:{
+        type:DataTypes.STRING,
+        allowNull:false
+    },
+    vendor_rep_phone:{
+        type:DataTypes.STRING,
+        allowNull:false
+    },
+    vendor_rep_email:{
+        type:DataTypes.STRING,
+        allowNull:false
     }
 }, {
     tableName: 'vendors'
