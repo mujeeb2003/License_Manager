@@ -108,12 +108,28 @@ function License() {
   }
 
   return (
-    <>
+    <> 
       <ToastContainer autoClose={3000} theme="dark" stacked={true}/>
       <Box className="bottom-container license" display={'flex'} flexDirection={'column'} p={4}>
-        <Flex justifyContent={'space-between'}  alignItems={'center'} direction={"column"}>
+        <Flex justifyContent={'space-between'}  alignItems={'center'} direction={"row"} >
+          <span>
           <h1 style={{ color: 'var(--dark)',fontSize:'30px',fontWeight:'bold' }}>Licenses</h1> 
-          <Accordion allowToggle transitionDuration={'0.3s'} mt={4}>
+          <p style={{color:'var(--dark-grey)'}}>View all of your licenses here</p>
+          </span>
+
+          <Flex direction="row" gap={4} justifyContent={'flex-end'} alignItems={'center'}>
+            <Box mt={4} >
+              {/* <Button >Download CSV</Button> */}
+              <DownloadCSV data={filteredData} fileName='Licenses'/>
+            </Box>
+            <Box mt={4} >
+              <LicenseModal onSave={handleSubmit}/>
+            </Box>
+          </Flex>
+        </Flex>
+        <Flex direction={'column'}>
+            
+          <Accordion allowToggle transitionDuration={'0.3s'} mt={4} mb={4}>
           <AccordionItem>
             <h2>
               <AccordionButton>
@@ -124,7 +140,7 @@ function License() {
               </AccordionButton>
             </h2>
             <AccordionPanel>
-              <Flex direction="row" gap={4} justifyContent={'center'} alignItems={'center'}>
+            <Flex direction="row" gap={4} justifyContent={'right'} alignItems={'center'}  mb={4}>
                 {/* Filters */}
                 <Box>
                   <Input
@@ -163,94 +179,86 @@ function License() {
                 <Box>
                     <Button onClick={handleFilterClear} size={"sm"} colorScheme='red'>Clear Filter</Button>
                 </Box>
-              </Flex>
+            </Flex>
             </AccordionPanel>
           </AccordionItem>
           </Accordion>
-          <Flex direction="row" gap={4} width={'100%'} justifyContent={'flex-end'} alignItems={'center'}>
-            <Box mt={4} >
-              <LicenseModal onSave={handleSubmit}/>
-            </Box>
-            <Box mt={4} >
-              {/* <Button >Download CSV</Button> */}
-              <DownloadCSV data={filteredData} fileName='Licenses'/>
-            </Box>
-          </Flex>
-        </Flex>
-        <TableContainer>
-          <Table colorScheme="blue" size="sm" fontSize={'xs'}>
-            <TableCaption>Licenses Overview</TableCaption>
-            <Thead bg="blue.50">
-              <Tr>
-                <Th onClick={() => handleSort('title')} cursor="pointer">
-                  Title {sortField === 'title' && (sortDirection === 'asc' ? '▲' : '▼')}
-                </Th>
-                <Th onClick={() => handleSort('expiry_date')} cursor="pointer">
-                  Expiry Date {sortField === 'expiry_date' && (sortDirection === 'asc' ? '▲' : '▼')}
-                </Th>
-                <Th onClick={() => handleSort('User.username')} cursor="pointer">
-                  Added by {sortField === 'User.username' && (sortDirection === 'asc' ? '▲' : '▼')}
-                </Th>
-                <Th onClick={() => handleSort('Vendor.vendor_name')} cursor="pointer">
-                  Vendor {sortField === 'Vendor.vendor_name' && (sortDirection === 'asc' ? '▲' : '▼')}
-                </Th>
-                <Th onClick={() => handleSort('Category.category_name')} cursor="pointer">
-                  Category {sortField === 'Category.category_name' && (sortDirection === 'asc' ? '▲' : '▼')}
-                </Th>
-                <Th onClick={() => handleSort('Status.status_name')} cursor="pointer">
-                  Status {sortField === 'Status.status_name' && (sortDirection === 'asc' ? '▲' : '▼')}
-                </Th>
-                <Th>Actions</Th>
-              </Tr>
-            </Thead>
-            <Tbody>
-              {currentData.map((row) => (
-                <Tr key={row.license_id}>
-                  <Td>{row.title}</Td>
-                  <Td>{new Date(row.expiry_date).toLocaleDateString()}</Td>
-                  <Td>{row['User.username']}</Td>
-                  <Td>{row['Vendor.vendor_name']}</Td>
-                  <Td>{row['Category.category_name']}</Td>
-                  <Td>{row['Status.status_name']}</Td>
-                  <Td>
-                    <AlertDialogS license_id={row.license_id}/>
-                    <LicenseEditModal license={row} onSave={handleEdit}/>
-                      
+          <TableContainer>
+            <Table colorScheme="blue" size="sm" fontSize={'xs'}>
+              <TableCaption>Licenses Overview</TableCaption>
+              <Thead bg="blue.50">
+                <Tr>
+                  <Th onClick={() => handleSort('title')} cursor="pointer">
+                    Title {sortField === 'title' && (sortDirection === 'asc' ? '▲' : '▼')}
+                  </Th>
+                  <Th onClick={() => handleSort('expiry_date')} cursor="pointer">
+                    Expiry Date {sortField === 'expiry_date' && (sortDirection === 'asc' ? '▲' : '▼')}
+                  </Th>
+                  <Th onClick={() => handleSort('User.username')} cursor="pointer">
+                    Added by {sortField === 'User.username' && (sortDirection === 'asc' ? '▲' : '▼')}
+                  </Th>
+                  <Th onClick={() => handleSort('Vendor.vendor_name')} cursor="pointer">
+                    Vendor {sortField === 'Vendor.vendor_name' && (sortDirection === 'asc' ? '▲' : '▼')}
+                  </Th>
+                  <Th onClick={() => handleSort('Category.category_name')} cursor="pointer">
+                    Category {sortField === 'Category.category_name' && (sortDirection === 'asc' ? '▲' : '▼')}
+                  </Th>
+                  <Th onClick={() => handleSort('Status.status_name')} cursor="pointer">
+                    Status {sortField === 'Status.status_name' && (sortDirection === 'asc' ? '▲' : '▼')}
+                  </Th>
+                  <Th>Actions</Th>
+                </Tr>
+              </Thead>
+              <Tbody>
+                {currentData.map((row) => (
+                  <Tr key={row.license_id}>
+                    <Td>{row.title}</Td>
+                    <Td>{new Date(row.expiry_date).toLocaleDateString()}</Td>
+                    <Td>{row['User.username']}</Td>
+                    <Td>{row['Vendor.vendor_name']}</Td>
+                    <Td>{row['Category.category_name']}</Td>
+                    <Td>{row['Status.status_name']}</Td>
+                    <Td>
+                      <AlertDialogS license_id={row.license_id}/>
+                      <LicenseEditModal license={row} onSave={handleEdit}/>
+                        
+                    </Td>
+                  </Tr>
+                ))}
+              </Tbody>
+              <Tfoot>
+                <Tr>
+                  <Td colSpan={7}>
+                    <Flex justifyContent="space-between" alignItems="center">
+                      <Button
+                        size="sm"
+                        onClick={() => handlePageChange(currentPage - 1)}
+                        isDisabled={currentPage === 1}
+                      >
+                        Previous
+                      </Button>
+                      <Box>
+                        Page {currentPage} of {totalPages}
+                      </Box>
+                      <Button
+                        size="sm"
+                        onClick={() => handlePageChange(currentPage + 1)}
+                        isDisabled={currentPage === totalPages}
+                      >
+                        Next
+                      </Button>
+                    </Flex>
                   </Td>
                 </Tr>
-              ))}
-            </Tbody>
-            <Tfoot>
-              <Tr>
-                <Td colSpan={7}>
-                  <Flex justifyContent="space-between" alignItems="center">
-                    <Button
-                      size="sm"
-                      onClick={() => handlePageChange(currentPage - 1)}
-                      isDisabled={currentPage === 1}
-                    >
-                      Previous
-                    </Button>
-                    <Box>
-                      Page {currentPage} of {totalPages}
-                    </Box>
-                    <Button
-                      size="sm"
-                      onClick={() => handlePageChange(currentPage + 1)}
-                      isDisabled={currentPage === totalPages}
-                    >
-                      Next
-                    </Button>
-                  </Flex>
-                </Td>
-              </Tr>
-            </Tfoot>
-          </Table>
-        </TableContainer>
+              </Tfoot>
+            </Table>
+          </TableContainer>
+        </Flex>
       </Box>
     </>
 
   );
 }
+
 
 export default License;

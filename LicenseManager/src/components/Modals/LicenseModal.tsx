@@ -1,8 +1,9 @@
-import {Modal,ModalOverlay,ModalContent,ModalHeader,ModalFooter,ModalBody,ModalCloseButton,Input,FormControl,FormLabel,Button,useDisclosure, Select,FormErrorMessage} from '@chakra-ui/react';
+import {Modal,ModalOverlay,ModalContent,ModalHeader,ModalFooter,ModalBody,ModalCloseButton,Input,FormControl,FormLabel,Button,useDisclosure, Select,FormErrorMessage, Icon} from '@chakra-ui/react';
 import { useState } from 'react';
 import { type licenseForm, type RootState } from '../../types';
 import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
+import { AddIcon } from '@chakra-ui/icons';
 
 function LicenseModal({ onSave }: { onSave: (data: licenseForm) => void }) {
     const {categories,vendors} = useSelector((state:RootState)=>state.license);
@@ -86,7 +87,8 @@ function LicenseModal({ onSave }: { onSave: (data: licenseForm) => void }) {
     return (
         <>
         <Button onClick={handleClick} colorScheme="blue" mb={4} size={"sm"}>
-        Add New License
+            <Icon mr={2} as={AddIcon}/>
+            Add New License
         </Button>
         
         <Modal isOpen={isOpen} onClose={onClose} size={"xl"}>

@@ -1,6 +1,7 @@
 import React from 'react';
 import type { License} from '../types';
-import {Button} from "@chakra-ui/react"
+import {Button, Icon} from "@chakra-ui/react"
+import { DownloadIcon } from '@chakra-ui/icons';
 
 const DownloadCSV = ({ data, fileName }:{data:License[],fileName:string}) => {
     const convertToCSV = (objArray: string | License[]) => {
@@ -34,7 +35,7 @@ const DownloadCSV = ({ data, fileName }:{data:License[],fileName:string}) => {
     };
     
     return (
-        <Button onClick={downloadCSV} colorScheme="blue" mb={4} size={"sm"}>Download CSV</Button>
+        <Button onClick={downloadCSV} colorScheme="white"  color={"black"} border={"1px solid black"} mb={4} size={"sm"}><Icon as={DownloadIcon} mr={2} /> Download CSV</Button>
     );
 }
 

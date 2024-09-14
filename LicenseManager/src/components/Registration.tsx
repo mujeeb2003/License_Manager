@@ -28,6 +28,7 @@ function Registration() {
         try {
             const result = await dispatch(userSignup({email:formValue.email,username:formValue.username,password:formValue.password})).unwrap();
             if(result.message){
+                console.log(result.message);
                 toggleloginmode();
                 return toast.success(result.message);
             }

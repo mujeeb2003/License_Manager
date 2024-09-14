@@ -19,9 +19,7 @@ const syncDatabase = async (force = false) => {
         }
         //   await db.query('SET FOREIGN_KEY_CHECKS = 1');
         
-        User.sync({alter:true});
-        Vendor.sync({alter:true});
-        Category.sync({alter:true});
+        // User.sync({alter:true});
 
         License.belongsTo(User, { foreignKey: 'user_id' });
         License.belongsTo(Vendor, { foreignKey: 'vendor_id' });

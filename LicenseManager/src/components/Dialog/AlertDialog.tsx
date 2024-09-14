@@ -8,13 +8,13 @@ import { toast } from "react-toastify";
 
 export default function AlertDialogS({license_id,vendor_id,category_id}:DialogProps) {
     const { isOpen, onOpen, onClose } = useDisclosure()
-    const { isAdmin } = useSelector((state:RootState)=>state.user);
-
+    const { isSuperAdmin } = useSelector((state:RootState)=>state.user);
+    console.log("isSuperAdmin from alertDialog:", isSuperAdmin);
     const cancelRef = React.useRef<HTMLButtonElement>(null);
     const dispatch = useDispatch<AppDispatch>();
  
     const handleClick = () =>{
-        !isAdmin ? toast.warning("Only Power Admins can delete") : onOpen();
+        !isSuperAdmin ? toast.warning("Only Power Admins can delete") : onOpen();
     }
     const handleDelete = () =>{
       if(category_id){

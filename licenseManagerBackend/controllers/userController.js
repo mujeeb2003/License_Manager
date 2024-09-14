@@ -5,15 +5,18 @@ const bcrypt = require("bcrypt");
 module.exports.register = async (req,res)=>{
     const {username,email,password} = req.body;
     try {
+        let userlength = await User.findAll();
+        
         let user = await User.findOne({where:{email}});
         if(user) return res.status(400).send({error:"Email already in use"});
         
         bcrypt.genSalt(10,(err,salt)=>{
             if(err) return res.status(400).send({error:err.message});
             bcrypt.hash(password,salt,async (err,hash)=>{
+                
                 if(err) return res.status(400).send({error:err.message});
                 
-                user = await User.create({username,email,password:hash});
+                user = await User.create({username,email,password:hash,isAdmin:userlength==0?true:false,isSuperAdmin:userlength==0?true:false});
                 
                 res.status(200).send({user:{email:user.email,username:user.username,user_id:user.user_id},message:"Registered successfull"});
             })
@@ -31,13 +34,17 @@ module.exports.login = async (req,res)=>{
         if(!user) {
             return res.status(404).send({error:"User not found"});
         }
+        
         const match = await bcrypt.compare(password,user.password);
+        
         if(!match) return res.status(400).send({error:"Email or password is incorrect"});
+        
+        if(!user.isDisable) return res.status(400).send({error:"User is Disabled"});
         
         const token = generateToken(user);
         res.cookie("token", token, { httpOnly: true, secure: true });
         
-        res.status(200).send({user:{email:user.email,username:user.username,user_id:user.user_id,isAdmin:user.isAdmin},message:"login successfull"});
+        res.status(200).send({user:{email:user.email,username:user.username,user_id:user.user_id,isAdmin:user.isAdmin,isSuperAdmin:user.isSuperAdmin},message:"login successfull"});
         
     } catch (error) {
         return res.status(500).send({error:error.message});
@@ -51,6 +58,40 @@ module.exports.getLoggedinUser = async(req,res)=>{
         return res.status(500).send({error:error.message});
     }
     
+}
+
+module.exports.toggleAdmin = async (req,res) => {
+    const { user_id } = req.body;
+    try {
+        const user = User.findByPk(user_id);
+        
+        if(!user) return res.status(404).send({error:'User not found'});
+        
+        user.isAdmin = !user.isAdmin;
+        
+        user.save();
+        
+        return res.send({user,message:"User update successfull"});
+    } catch (error) {
+        return res.status(500).send({error:error.message})
+    }
+}
+
+module.exports.userDisable = async(req,res)=> {
+    const {user_id} = req.body;
+    try {
+        const user = User.findByPk(user_id);
+        
+        if(!user) return res.status(404).send({error:'User not found'});
+        
+        user.isDisable = !user.isDisable;
+        
+        user.save();
+        
+        return res.send({user,message:"User update successfull"});
+    } catch (error) {
+        return res.status(500).send({error:error.message})
+    }
 }
 
 module.exports.logoutUser = async (req,res) => {

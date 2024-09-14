@@ -72,11 +72,17 @@ function Category() {
     <>
       <ToastContainer autoClose={3000} theme="dark" stacked={true}/>
       <Box className="bottom-container license" display={'flex'} flexDirection={'column'} p={4}>
-        <Flex justifyContent={'space-between'}  alignItems={'center'} direction={"column"}>
-          <h1 style={{ color: 'var(--dark)',fontSize:'30px',fontWeight:'bold' }}>Category</h1> 
-          <Box mt={4}>
+      <Flex justifyContent={'space-between'}  alignItems={'center'} direction={"row"} >
+          <span>
+          <h1 style={{ color: 'var(--dark)',fontSize:'30px',fontWeight:'bold' }}>Categories</h1> 
+          <p style={{color:'var(--dark-grey)'}}>View all of your categories here</p>
+          </span>
+
+          <Flex direction="row" gap={4} justifyContent={'flex-end'} alignItems={'center'}>
+            <Box mt={4} >
               <CategoryModal onSave={handleSubmit}/>
-          </Box>
+            </Box>
+          </Flex>
         </Flex>
         <TableContainer>
           <Table colorScheme="blue" size="sm" fontSize={'xs'} textAlign={'center'}>

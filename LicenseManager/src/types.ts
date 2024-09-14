@@ -3,6 +3,7 @@ import { store } from "./redux/store";
 export type userState = {
     user:User,
     isAdmin:boolean,
+    isSuperAdmin:boolean,
     error:string,
     loading:boolean
 }

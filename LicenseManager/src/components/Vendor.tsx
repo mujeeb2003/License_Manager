@@ -8,6 +8,7 @@ import VendorModal from './Modals/VendorModal';
 import { toast, ToastContainer } from 'react-toastify';
 import AlertDialogS from './Dialog/AlertDialog';
 import VendorEditModal from './Modals/VendorEditModal';
+import LicenseModal from './Modals/LicenseModal';
 
 function Vendor() {
   const { vendors } = useSelector((state: RootState) => state.license);
@@ -75,11 +76,16 @@ function Vendor() {
     <>
       <ToastContainer autoClose={3000} theme="dark" stacked={true}/>
       <Box className="bottom-container license" display={'flex'} flexDirection={'column'} p={4}>
-        <Flex justifyContent={'space-between'}  alignItems={'center'} direction={"column"}>
+        <Flex justifyContent={'space-between'}  alignItems={'center'} direction={"row"} >
+          <span>
           <h1 style={{ color: 'var(--dark)',fontSize:'30px',fontWeight:'bold' }}>Vendors</h1> 
-          <Box mt={4}>
-              <VendorModal onSave={handleSubmit}/>
-          </Box>
+          <p style={{color:'var(--dark-grey)'}}>View all of your vendors here</p>
+          </span>
+          <Flex direction="row" gap={4} justifyContent={'flex-end'} alignItems={'center'}>
+            <Box mt={4} >
+              <LicenseModal onSave={handleSubmit}/>
+            </Box>
+          </Flex>
         </Flex>
         <TableContainer>
           <Table colorScheme="blue" size="sm" fontSize={'xs'} textAlign={'center'}>

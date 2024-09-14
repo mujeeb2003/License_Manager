@@ -24,6 +24,14 @@ const User = db.define('User', {
     isAdmin : {
         type: DataTypes.BOOLEAN,
         defaultValue:false
+    },
+    isSuperAdmin : {
+        type: DataTypes.BOOLEAN,
+        defaultValue:false
+    },
+    isDisable : {
+        type: DataTypes.BOOLEAN,
+        defaultValue:false
     }
 }, {
     tableName: 'users'
