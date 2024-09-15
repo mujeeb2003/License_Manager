@@ -26,10 +26,16 @@ function Registration() {
     const handleSignup = async (e:FormEvent<HTMLFormElement>) => { 
         e.preventDefault();
         try {
-            const result = await dispatch(userSignup({email:formValue.email,username:formValue.username,password:formValue.password})).unwrap();
+            const result = (await dispatch(userSignup({email:formValue.email,username:formValue.username,password:formValue.password}))).payload;
+            console.log(result);
             if(result.message){
                 console.log(result.message);
                 toggleloginmode();
+                setformValue({
+                    email:"",
+                    username:"",
+                    password:""
+                });
                 return toast.success(result.message);
             }
 
@@ -44,6 +50,7 @@ function Registration() {
             const result = await dispatch(userLogin({email:formValue.email,password:formValue.password})).unwrap();
             
             if(result.message){
+                console.log("Login function");
                 navigate("/home/dashboard");
             }
         } catch (error: any) {

@@ -1,5 +1,6 @@
-const { License, User, Vendor,Category, Status } = require("../models/index.js");
-
+const { License, User, Vendor,Category, Status,Log } = require("../models/index.js");
+const { Op } = require("sequelize")
+const { sendNotificationEmail } = require("../utils/sendEmailNotification.js");
 module.exports.getLicenses = async (req,res) => {
     try {
         const licenses = await License.findAll({
@@ -80,6 +81,12 @@ module.exports.createLicense = async (req,res) => {
         
         if(!license) return res.status(400).send({error:"License could not be created"});
         
+        await Log.create({
+            user_id: user.user_id,
+            license_id: license.license_id,
+            description: 'License created',
+            action_type: `Created by ${license["User.username"]}`,
+        });
         return res.status(200).send({license});
     } catch (error) {
         return res.status(500).send({error:error.message});
@@ -142,6 +149,13 @@ module.exports.editLicense = async (req,res) => {
             raw:true,
             order:[["expiry_date","ASC"]]
         });
+
+        await Log.create({
+            user_id: user_id,
+            license_id: license.license_id,
+            description: 'License updated',
+            action_type: `Updated by ${license["User.username"]}`,
+        });
         
         return res.status(200).send({license});
     } catch (error) {
@@ -149,3 +163,24 @@ module.exports.editLicense = async (req,res) => {
     }
     
 }
+
+module.exports.checkExpiringLicenses = async () => {
+    const licensesAboutToExpire = await License.findAll({
+        where: {
+            expiry_date: {
+                [Op.lte]: new Date(new Date().setDate(new Date().getDate() + 30)) // Licenses expiring in 30 days
+            }
+        },
+        include: [
+            { model: User, attributes: ['email', 'username'] }
+        ]
+    });
+    console.log(licensesAboutToExpire);
+    licensesAboutToExpire.forEach(license => {
+        const { username: userName, email } = license.User.email;
+        const subject = `License Expiry Notification: ${license.title}`;
+        const message = `Dear ${license.User.username}, the license ${license.title} is about to expire on ${license.expiry_date}. Please take the necessary actions.`;
+        sendNotificationEmail("mrehman0501305@gmail.com", subject, message);
+    });
+};
+

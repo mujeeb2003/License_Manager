@@ -2,6 +2,7 @@ import { store } from "./redux/store";
 
 export type userState = {
     user:User,
+    users:User[],
     isAdmin:boolean,
     isSuperAdmin:boolean,
     error:string,
@@ -12,7 +13,16 @@ export type User = {
     user_id:number
     username:string
     email:string
+    isDisable:boolean,
+    isAdmin:boolean,
+    isSuperAdmin:boolean
 }
+export type UserFilters = {
+    name: string;
+    email: string;
+    isAdmin: string; // e.g., "admin", "user", or empty for all
+    isDisable: string; // e.g., "active", "disabled", or empty for all
+};
 
 export type licenseState = {
     licenses:License[],

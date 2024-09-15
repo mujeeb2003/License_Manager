@@ -8,6 +8,7 @@ import CategoryModal from './Modals/CategoryModal';
 import { toast, ToastContainer } from 'react-toastify';
 import AlertDialogS from './Dialog/AlertDialog';
 import CategoryEditModal from './Modals/CategoryEditModal';
+import { FaTags } from 'react-icons/fa';
 
 function Category() {
   const { categories } = useSelector((state: RootState) => state.license);
@@ -74,7 +75,14 @@ function Category() {
       <Box className="bottom-container license" display={'flex'} flexDirection={'column'} p={4}>
       <Flex justifyContent={'space-between'}  alignItems={'center'} direction={"row"} >
           <span>
-          <h1 style={{ color: 'var(--dark)',fontSize:'30px',fontWeight:'bold' }}>Categories</h1> 
+          <h1 style={{ color: 'var(--dark)',fontSize:'30px',fontWeight:'bold' }}>
+          <IconButton
+              icon={<FaTags/>}
+              aria-label=""
+              variant="outline"
+              size="sm"
+              mr={2}
+              />Categories</h1> 
           <p style={{color:'var(--dark-grey)'}}>View all of your categories here</p>
           </span>
 
@@ -90,7 +98,7 @@ function Category() {
             <Thead bg="blue.50">
               <Tr >
                 <Th textAlign={'center'} onClick={() => handleSort('category_id')} cursor="pointer">
-                  Title {sortField === 'category_id' && (sortDirection === 'asc' ? '▲' : '▼')}
+                  ID {sortField === 'category_id' && (sortDirection === 'asc' ? '▲' : '▼')}
                 </Th>
                 <Th textAlign={'center'} onClick={() => handleSort('category_name')} cursor="pointer">
                   Category Name {sortField === 'category_name' && (sortDirection === 'asc' ? '▲' : '▼')}

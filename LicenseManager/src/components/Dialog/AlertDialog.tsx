@@ -9,7 +9,6 @@ import { toast } from "react-toastify";
 export default function AlertDialogS({license_id,vendor_id,category_id}:DialogProps) {
     const { isOpen, onOpen, onClose } = useDisclosure()
     const { isSuperAdmin } = useSelector((state:RootState)=>state.user);
-    console.log("isSuperAdmin from alertDialog:", isSuperAdmin);
     const cancelRef = React.useRef<HTMLButtonElement>(null);
     const dispatch = useDispatch<AppDispatch>();
  

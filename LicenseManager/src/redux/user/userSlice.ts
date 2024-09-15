@@ -7,7 +7,11 @@ const initialState:userState = {
         user_id:0,
         email:'',
         username:'',
+        isAdmin:false,
+        isSuperAdmin:false,
+        isDisable:false
     },
+    users:[],
     isAdmin:false,
     isSuperAdmin:false,
     loading:false,
@@ -64,6 +68,67 @@ export const logoutUser = createAsyncThunk('user/logoutUser',async (_undefined,{
 
 })
 
+
+export const toggleDisable = createAsyncThunk('user/toggleDisable',async (credentials:{user_id:number},{rejectWithValue})=>{
+    try {
+        const res = await axios.post("/api/user/toggleDisable",credentials);
+        return res.data;
+    } catch (error:any) {
+
+        if(error.response && error.response.data) return rejectWithValue(error.response.data);
+        rejectWithValue({error:error.message});
+
+    }
+})
+
+export const toggleAdmin = createAsyncThunk('user/toggleAdmin',async (credentials:{user_id:number},{rejectWithValue})=>{
+    try {
+        const res = await axios.post("/api/user/toggleAdmin",credentials);
+        return res.data;
+    } catch (error:any) {
+
+        if(error.response && error.response.data) return rejectWithValue(error.response.data);
+        rejectWithValue({error:error.message});
+
+    }
+})
+
+export const resetPassword = createAsyncThunk('user/resetPassword',async (credentials:{user_id:number,password:string},{rejectWithValue})=>{
+    try {
+        const res = await axios.post("/api/user/resetPassword",credentials);
+        return res.data;
+    } catch (error:any) {
+
+        if(error.response && error.response.data) return rejectWithValue(error.response.data);
+        rejectWithValue({error:error.message});
+
+    }
+})
+
+export const getAllUsers = createAsyncThunk('user/getAllUsers',async (_undefined,{rejectWithValue})=>{
+    try {
+        const res = await axios.get("/api/user/getAllUsers");
+        return res.data;
+    } catch (error:any) {
+        if(error.response && error.response.data) return rejectWithValue(error.response.data);
+        rejectWithValue({error:error.message});
+
+    }
+})
+
+export const updateUser = createAsyncThunk('user/updateUser',async (credentials:{user_id:number,password?:string,username?:string},{rejectWithValue})=>{
+    try {
+        const res = await axios.post("/api/user/updateUser",credentials);
+        return res.data;
+    } catch (error:any) {
+
+        if(error.response && error.response.data) return rejectWithValue(error.response.data);
+        rejectWithValue({error:error.message});
+
+    }
+})
+
+
 const userSlice = createSlice({
     initialState,
     name: `user`,
@@ -89,7 +154,6 @@ const userSlice = createSlice({
         })
         builder.addCase(userSignup.fulfilled,(state,{payload})=>{
             state.loading=false;
-            state.user=payload.user
         })
         builder.addCase(userSignup.rejected,(state,{payload})=>{
             state.loading=false;
@@ -114,6 +178,65 @@ const userSlice = createSlice({
 
         })
         builder.addCase(logoutUser.rejected,(state,{payload})=>{
+            state.loading=false;
+            state.error=payload as string;
+        })
+        builder.addCase(toggleDisable.pending,(state)=>{
+            state.loading=true;
+        })
+        builder.addCase(toggleDisable.fulfilled,(state,{payload})=>{
+            state.loading=false;
+            state.users.forEach((user)=>{
+                user.user_id === payload.user.user_id ? user.isDisable = payload.user.isDisable : null
+            });
+        })
+        builder.addCase(toggleDisable.rejected,(state,{payload})=>{
+            state.loading=false;
+            state.error=payload as string;
+        })
+        builder.addCase(toggleAdmin.pending,(state)=>{
+            state.loading=true;
+        })
+        builder.addCase(toggleAdmin.fulfilled,(state,{payload})=>{
+            state.loading=false;
+            state.users.forEach((user)=>{
+                user.user_id === payload.user.user_id ? user.isAdmin = payload.user.isAdmin : null
+            });
+        })
+        builder.addCase(toggleAdmin.rejected,(state,{payload})=>{
+            state.loading=false;
+            state.error=payload as string;
+        })
+        builder.addCase(resetPassword.pending,(state)=>{
+            state.loading=true;
+        })
+        builder.addCase(resetPassword.fulfilled,(state,{payload})=>{
+            state.loading=false;
+            
+        })
+        builder.addCase(resetPassword.rejected,(state,{payload})=>{
+            state.loading=false;
+            state.error=payload as string;
+        })
+        builder.addCase(updateUser.pending,(state)=>{
+            state.loading=true;
+        })
+        builder.addCase(updateUser.fulfilled,(state,{payload})=>{
+            state.loading=false;
+            state.user = payload.user;
+        })
+        builder.addCase(updateUser.rejected,(state,{payload})=>{
+            state.loading=false;
+            state.error=payload as string;
+        })
+        builder.addCase(getAllUsers.pending,(state)=>{
+            state.loading=true;
+        })
+        builder.addCase(getAllUsers.fulfilled,(state,{payload})=>{
+            state.loading=false;
+            state.users = payload.users;
+        })
+        builder.addCase(getAllUsers.rejected,(state,{payload})=>{
             state.loading=false;
             state.error=payload as string;
         })

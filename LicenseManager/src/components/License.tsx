@@ -9,7 +9,7 @@ import AlertDialogS from './Dialog/AlertDialog';
 import DownloadCSV from '../utils/DownloadCSV';
 import getLicense from '../utils/GetLicenses';
 import LicenseEditModal from './Modals/LicenseEditModal';
-
+import { FaShieldAlt} from "react-icons/fa"
 function License() {
   const { licenses } = useSelector((state: RootState) => state.license);
   const dispatch = useDispatch<AppDispatch>();
@@ -113,7 +113,14 @@ function License() {
       <Box className="bottom-container license" display={'flex'} flexDirection={'column'} p={4}>
         <Flex justifyContent={'space-between'}  alignItems={'center'} direction={"row"} >
           <span>
-          <h1 style={{ color: 'var(--dark)',fontSize:'30px',fontWeight:'bold' }}>Licenses</h1> 
+          <h1 style={{ color: 'var(--dark)',fontSize:'30px',fontWeight:'bold' }}>
+            <IconButton
+              icon={<FaShieldAlt/>}
+              aria-label=""
+              variant="outline"
+              size="sm"
+              mr={2}
+              />Licenses</h1> 
           <p style={{color:'var(--dark-grey)'}}>View all of your licenses here</p>
           </span>
 

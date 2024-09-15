@@ -1,13 +1,14 @@
 import { Button, Menu, MenuButton,MenuGroup, MenuItem, MenuList } from '@chakra-ui/react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { Link, useLocation} from 'react-router-dom';
-import { AppDispatch } from '../types';
+import { AppDispatch, type RootState } from '../types';
 import { logoutUser } from '../redux/user/userSlice';
 
 function Navbar() {
   const location = useLocation();
   const isActive = (path:string) => location.pathname === path;
   const dispatch = useDispatch<AppDispatch>();
+  const { isSuperAdmin } = useSelector((state:RootState)=>state.user);
   const handleLogout = async () => {
     const res = await dispatch(logoutUser());
     if(res.payload.message){
@@ -22,12 +23,13 @@ function Navbar() {
         <Link to="/"><img src="../public/logo.png" alt="" style={{width: "auto", height: "40px"}}/></Link>
         
       </div>
-
+e
       <div className="nav-links">
         <Link to="/home/dashboard" id={isActive('/home/dashboard') ? 'isactive' : ''}>Dashboard</Link>
         <Link to="/home/licenses"  id={isActive('/home/licenses') ? 'isactive' : ''}>Licenses</Link>
         <Link to="/home/vendors"  id={isActive('/home/vendors') ? 'isactive' : ''}>Vendors</Link>
         <Link to="/home/category"  id={isActive('/home/category') ? 'isactive' : ''}>Category</Link>
+        {isSuperAdmin &&<Link to="/home/userManagement"  id={isActive('/home/userManagement') ? 'isactive' : ''}>User Management</Link>}
       </div>
 
       <div className="right-section">
@@ -43,7 +45,7 @@ function Navbar() {
                 </MenuButton>
                 <MenuList>
                   <MenuGroup title='Profile'>
-                    <MenuItem>My Account</MenuItem>
+                    <Link to="/home/profile"><MenuItem>My Account</MenuItem></Link>
                     <MenuItem onClick={()=>handleLogout()}>Logout</MenuItem>
                   </MenuGroup>
                 </MenuList>

@@ -9,6 +9,7 @@ import { toast, ToastContainer } from 'react-toastify';
 import AlertDialogS from './Dialog/AlertDialog';
 import VendorEditModal from './Modals/VendorEditModal';
 import LicenseModal from './Modals/LicenseModal';
+import { FaShoppingBag } from 'react-icons/fa';
 
 function Vendor() {
   const { vendors } = useSelector((state: RootState) => state.license);
@@ -78,11 +79,18 @@ function Vendor() {
       <Box className="bottom-container license" display={'flex'} flexDirection={'column'} p={4}>
         <Flex justifyContent={'space-between'}  alignItems={'center'} direction={"row"} >
           <span>
-          <h1 style={{ color: 'var(--dark)',fontSize:'30px',fontWeight:'bold' }}>Vendors</h1> 
+          <h1 style={{ color: 'var(--dark)',fontSize:'30px',fontWeight:'bold' }}>
+          <IconButton
+              icon={<FaShoppingBag/>}
+              aria-label=""
+              variant="outline"
+              size="sm"
+              mr={2}
+              />Vendors</h1> 
           <p style={{color:'var(--dark-grey)'}}>View all of your vendors here</p>
           </span>
           <Flex direction="row" gap={4} justifyContent={'flex-end'} alignItems={'center'}>
-            <Box mt={4} >
+            <Box mt={4}>
               <LicenseModal onSave={handleSubmit}/>
             </Box>
           </Flex>
@@ -93,7 +101,7 @@ function Vendor() {
             <Thead bg="blue.50">
               <Tr >
                 <Th textAlign={'center'} onClick={() => handleSort('vendor_id')} cursor="pointer">
-                  Title {sortField === 'vendor_id' && (sortDirection === 'asc' ? '▲' : '▼')}
+                  ID {sortField === 'vendor_id' && (sortDirection === 'asc' ? '▲' : '▼')}
                 </Th>
                 <Th textAlign={'center'} onClick={() => handleSort('vendor_name')} cursor="pointer">
                   Vendor Name {sortField === 'vendor_name' && (sortDirection === 'asc' ? '▲' : '▼')}

@@ -8,7 +8,8 @@ const licenseRouter = require('./routes/licenseRouter.js');
 const userRouter = require('./routes/userRouter.js');
 const router = require("./routes/Router.js");
 const app = express();
-
+// Import the cron job (this will start the cron job when app starts)
+require('./cron/licenseCron');
 
 const PORT = process.env.PORT || 5000;
 

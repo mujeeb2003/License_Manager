@@ -21,6 +21,7 @@ const db = new Sequelize(process.env.DB_NAME,dbConfig.user,dbConfig.pass,{
 (async () => {
     try {
         await db.authenticate();
+        
         console.log("Database connection has been established successfully.");
         // Sync all models
         await db.sync({ alter: true }); // { force: true } if you want to drop existing tables

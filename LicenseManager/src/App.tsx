@@ -11,8 +11,11 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, type RootState } from "./types";
 import { getLoggedinUser } from "./redux/user/userSlice";
 import { useEffect } from "react";
+import UserManagementComponent from "./components/UserManagement";
+import ProfilePage from "./components/Profile";
 
 function App() {
+  const {isSuperAdmin} = useSelector((state:RootState)=>state.user);
   const dispatch = useDispatch<AppDispatch>();
 
   useEffect(() => {
@@ -37,6 +40,8 @@ function App() {
                   <Route path="/Licenses" element={<License />} />
                   <Route path="/Vendors" element={<Vendor />} />
                   <Route path="/Category" element={<Category />} />
+                  {isSuperAdmin && <Route path="/userManagement" element={<UserManagementComponent />} />}
+                  <Route path="/profile" element={<ProfilePage />}/>
                 </Routes>
               </>
             }>
