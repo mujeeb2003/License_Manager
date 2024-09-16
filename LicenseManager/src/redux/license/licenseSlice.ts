@@ -1,9 +1,11 @@
-import {createAsyncThunk, createSlice} from "@reduxjs/toolkit"
+import {createAsyncThunk, createSlice, isRejectedWithValue} from "@reduxjs/toolkit"
 import type { categoryForm, licenseForm, licenseState, vendorForm } from "../../types"
 import axios from "axios"
 
 const initialState:licenseState ={
     licenses: [],
+    licExpInWeek:[],
+    newLic:[],
     categories: [],
     status: [],
     vendors: [],
@@ -143,6 +145,16 @@ export const editVendor = createAsyncThunk("license/editVendor",async(data:vendo
     }
 })
 
+export const getLicenseNot = createAsyncThunk("license/getLicenseNot",async(_undefined,{rejectWithValue})=>{
+    try {
+        const res = await axios.get("/api/license/getLicenseNot");
+        return res.data;
+    } catch (error:any) {
+        if(error.response && error.response.data) return rejectWithValue(error.response.data);
+
+        return rejectWithValue({error:error.message});
+    }
+})
 const licenseSlice = createSlice({
     initialState,
     name:`license`,
@@ -275,6 +287,18 @@ const licenseSlice = createSlice({
             })
         })
         builder.addCase(editVendor.rejected,(state,{payload})=>{
+            state.loading=false;
+            state.error=payload as string;
+        })
+        builder.addCase(getLicenseNot.pending,(state)=>{
+            state.loading=true;
+        })
+        builder.addCase(getLicenseNot.fulfilled,(state,{payload})=>{
+            state.loading=false;
+            state.licExpInWeek = payload.licExpInWeek;
+            state.newLic = payload.newLic;
+        })
+        builder.addCase(getLicenseNot.rejected,(state,{payload})=>{
             state.loading=false;
             state.error=payload as string;
         })

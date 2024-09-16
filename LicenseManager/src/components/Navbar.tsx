@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Link, useLocation} from 'react-router-dom';
 import { AppDispatch, type RootState } from '../types';
 import { logoutUser } from '../redux/user/userSlice';
-
+import { FaUser } from "react-icons/fa";
 function Navbar() {
   const location = useLocation();
   const isActive = (path:string) => location.pathname === path;
@@ -20,7 +20,7 @@ function Navbar() {
   return (
     <div className="nav">
       <div className="logo">
-        <Link to="/"><img src="../public/logo.png" alt="" style={{width: "auto", height: "40px"}}/></Link>
+        <Link to="/home/dashboard"><img src="../public/logo.png" alt="" style={{width: "auto", height: "40px"}}/></Link>
         
       </div>
 e
@@ -39,9 +39,7 @@ e
         <div className="profile">
               <Menu size={"sm"}>
                 <MenuButton as={Button} colorScheme=''>
-                  <img src="assets/profile.png" alt="" />
-                  {/* Profile */}
-                  <i className='bx bx-chevron-down' style={{fontSize:"22px"}}></i>
+                  <FaUser />
                 </MenuButton>
                 <MenuList>
                   <MenuGroup title='Profile'>

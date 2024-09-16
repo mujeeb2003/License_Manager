@@ -149,7 +149,7 @@ module.exports.editLicense = async (req,res) => {
             raw:true,
             order:[["expiry_date","ASC"]]
         });
-
+        
         await Log.create({
             user_id: user_id,
             license_id: license.license_id,
@@ -175,12 +175,96 @@ module.exports.checkExpiringLicenses = async () => {
             { model: User, attributes: ['email', 'username'] }
         ]
     });
-    console.log(licensesAboutToExpire);
+    
     licensesAboutToExpire.forEach(license => {
         const { username: userName, email } = license.User.email;
         const subject = `License Expiry Notification: ${license.title}`;
         const message = `Dear ${license.User.username}, the license ${license.title} is about to expire on ${license.expiry_date}. Please take the necessary actions.`;
         sendNotificationEmail("mrehman0501305@gmail.com", subject, message);
     });
+
+    const allLicenses = await License.findAll();
+    allLicenses.forEach(license => {
+        this.updateLicenseExpiry(license);
+    })
 };
 
+module.exports.updateLicenseExpiry = async (license) =>{
+    const today = new Date();
+    if(license.expiry_date < today){
+        license.status_id = (await Status.findOne({where:{status_name:"Expired"}})).status_id;
+    } else if (license.expiry_date < new Date(today.setMonth(today.getMonth() + 1))) {
+        license.status_id = (await Status.findOne({where:{status_name:"Near to Expiry"}})).status_id;
+    }
+    await license.save();
+}
+
+module.exports.getLicExpiry = async (req,res) =>{
+    try {
+        const licExpInWeek = await License.findAll({where:{
+            expiry_date:{
+                [Op.lte]:new Date(new Date().setDate(new Date().getDate() + 7))
+            }
+        },
+        attributes:{
+            exclude:['createdAt','updatedAt',"user_id","vendor_id","category_id","status_id"],
+        },
+        include:[
+            {
+                model:User,
+                attributes:["username"]
+            },
+            {
+                model:Vendor,
+                attributes:["vendor_name"]
+            },
+            {
+                model:Category,
+                attributes:["category_name"]
+            },
+            {
+                model:Status,
+                attributes:["status_name"]
+            },
+        ],
+        raw:true,
+        });
+    
+        const newLic = (await License.findAll({
+            order:[["createdAt","ASC"]],
+            where:{
+                createdAt:{
+                    [Op.gte]:new Date().setHours(0,0,0,0),
+                    [Op.lte]:new Date().setHours(23,59,59,999)
+                }
+            },
+            attributes:{
+                exclude:['createdAt','updatedAt',"user_id","vendor_id","category_id","status_id"],
+            },
+            include:[
+                {
+                    model:User,
+                    attributes:["username"]
+                },
+                {
+                    model:Vendor,
+                    attributes:["vendor_name"]
+                },
+                {
+                    model:Category,
+                    attributes:["category_name"]
+                },
+                {
+                    model:Status,
+                    attributes:["status_name"]
+                },
+            ],
+            raw:true,
+        }));
+    
+        return res.status(200).send({licExpInWeek,newLic});
+    
+    } catch (error) {
+        return res.status(500).send({error:error.message});
+    }
+}

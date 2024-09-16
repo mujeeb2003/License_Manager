@@ -3,7 +3,7 @@ import LicenseCalendar from './subComponents/LicenseCalendar'
 import LicenseNot from './subComponents/LicenseNot'
 import LicenseStatus from './subComponents/LicenseStatus'
 import LicenseTable from './subComponents/LicenseTable'
-import { getLicenseOpt, getLicenses } from '../redux/license/licenseSlice'
+import { getLicenseOpt, getLicenses,getLicenseNot } from '../redux/license/licenseSlice'
 import { useDispatch } from 'react-redux'
 import { AppDispatch } from '../types'
 
@@ -13,6 +13,8 @@ function Dashboard() {
   useEffect(() => {
     dispatch(getLicenseOpt());
     dispatch(getLicenses());
+    dispatch(getLicenseNot());
+
   }, [dispatch]);
   
   return (

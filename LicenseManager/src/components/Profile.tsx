@@ -7,12 +7,7 @@ import { useSelector } from "react-redux";
 const ProfilePage = () => {
   const { user } = useSelector((state:RootState)=>state.user);
   const { isOpen, onOpen, onClose } = useDisclosure();
-  // const [username, setUsername] = useState("john_doe");  // default value
-  // const [email, setEmail] = useState("john@example.com");  // default value
-  // const [role, setRole] = useState("Admin");  // default value
-  // const [status, setStatus] = useState("Active");  // default value
-  const [lastLogin, setLastLogin] = useState("12 Sept 2024");  // default value
-  // const [password, setPassword] = useState("");  // for password change
+  const [lastLogin, setLastLogin] = useState((new Date()));  // default value
   const [editform, seteditform] = useState({username:"",password:""});
 
 
@@ -61,7 +56,7 @@ const ProfilePage = () => {
           </HStack>
           <HStack>
             <Text fontWeight="bold">Last Login:</Text>
-            <Text>{lastLogin}</Text>
+            <Text>{lastLogin.toString()}</Text>
           </HStack>
         </VStack>
       </Box>

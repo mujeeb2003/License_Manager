@@ -30,7 +30,9 @@ export type licenseState = {
     vendors:Vendor[],
     categories:Category[],
     error:string,
-    loading:boolean
+    loading:boolean,
+    licExpInWeek:License[],
+    newLic:License[]
 }
 
 export type License = {

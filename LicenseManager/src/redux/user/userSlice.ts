@@ -164,7 +164,10 @@ const userSlice = createSlice({
         })
         builder.addCase(getLoggedinUser.fulfilled,(state,{payload})=>{
             state.loading=false;
-            state.user=payload.user
+            console.log(payload);
+            state.user=payload.user;
+            state.isAdmin = payload.user.isAdmin;
+            state.isSuperAdmin = payload.user.isSuperAdmin;
         })
         builder.addCase(getLoggedinUser.rejected,(state,{payload})=>{
             state.loading=false;

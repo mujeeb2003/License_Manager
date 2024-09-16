@@ -36,6 +36,7 @@ function Registration() {
                     username:"",
                     password:""
                 });
+                
                 return toast.success(result.message);
             }
 
@@ -80,9 +81,9 @@ function Registration() {
                 <p>Don't have an account? <a style={{color:"blue",cursor:"pointer"}} onClick={toggleloginmode}>Create Your Account</a> it takes less than a minute</p>
                 <form onSubmit={(e)=>handleLogin(e)}>
                     <div className="inputs">
-                        <input type="email" required placeholder="email" name='email' defaultValue={formValue.email} onChange={(e)=>handleChange(e)}/>
+                        <input type="email" required placeholder="email" name='email' id='email' value={formValue.email} onChange={(e)=>handleChange(e)}/>
                         <br />
-                        <input type="password" minLength={6} required placeholder="password" name='password' defaultValue={formValue.password}  onChange={(e)=>handleChange(e)}/>
+                        <input type="password" minLength={8} required placeholder="password" name='password' id='password' value={formValue.password}  onChange={(e)=>handleChange(e)}/>
                     </div>
                     
                     <br /><br />
