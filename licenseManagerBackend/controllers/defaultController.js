@@ -1,6 +1,7 @@
 const { Category, Vendor, License, Log} = require("../models/index.js");
 const syslog = require("syslog-client");
 const { Op} = require("sequelize");
+const client = syslog.createClient("localhost", { port: 514 }); // Create syslog client
 
 module.exports.getLicenseopt = async(req,res) => {
     try {
