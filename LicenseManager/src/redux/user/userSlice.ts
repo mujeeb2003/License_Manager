@@ -152,7 +152,7 @@ const userSlice = createSlice({
         builder.addCase(userSignup.pending,(state)=>{
             state.loading=true;
         })
-        builder.addCase(userSignup.fulfilled,(state,{payload})=>{
+        builder.addCase(userSignup.fulfilled,(state,{})=>{
             state.loading=false;
         })
         builder.addCase(userSignup.rejected,(state,{payload})=>{
@@ -176,7 +176,7 @@ const userSlice = createSlice({
         builder.addCase(logoutUser.pending,(state)=>{
             state.loading=true;
         })
-        builder.addCase(logoutUser.fulfilled,(state,{payload})=>{
+        builder.addCase(logoutUser.fulfilled,(state,{})=>{
             state.loading=false;
 
         })
@@ -213,7 +213,7 @@ const userSlice = createSlice({
         builder.addCase(resetPassword.pending,(state)=>{
             state.loading=true;
         })
-        builder.addCase(resetPassword.fulfilled,(state,{payload})=>{
+        builder.addCase(resetPassword.fulfilled,(state,{})=>{
             state.loading=false;
             
         })

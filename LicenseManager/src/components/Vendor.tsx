@@ -1,15 +1,13 @@
 import { Table, Thead, Tbody, Tfoot, Tr, Th, Td, TableCaption, TableContainer, IconButton, Box, Flex, Button } from '@chakra-ui/react';
-import { EditIcon } from '@chakra-ui/icons';
 import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { createVendor, editVendor } from '../redux/license/licenseSlice';
 import { AppDispatch, type RootState,type Vendor, type vendorForm } from '../types';
-import VendorModal from './Modals/VendorModal';
 import { toast, ToastContainer } from 'react-toastify';
 import AlertDialogS from './Dialog/AlertDialog';
 import VendorEditModal from './Modals/VendorEditModal';
-import LicenseModal from './Modals/LicenseModal';
 import { FaShoppingBag } from 'react-icons/fa';
+import VendorModal from './Modals/VendorModal';
 
 function Vendor() {
   const { vendors } = useSelector((state: RootState) => state.license);
@@ -91,7 +89,7 @@ function Vendor() {
           </span>
           <Flex direction="row" gap={4} justifyContent={'flex-end'} alignItems={'center'}>
             <Box mt={4}>
-              <LicenseModal onSave={handleSubmit}/>
+              <VendorModal onSave={handleSubmit}/>
             </Box>
           </Flex>
         </Flex>

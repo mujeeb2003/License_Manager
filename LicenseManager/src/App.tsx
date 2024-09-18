@@ -19,7 +19,7 @@ function App() {
   const dispatch = useDispatch<AppDispatch>();
 
   useEffect(() => {
-    dispatch(getLoggedinUser()).then((res)=>{});
+    dispatch(getLoggedinUser());
   }, [dispatch])
 
   return (

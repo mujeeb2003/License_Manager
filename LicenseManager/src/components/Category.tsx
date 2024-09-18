@@ -1,5 +1,4 @@
 import { Table, Thead, Tbody, Tfoot, Tr, Th, Td, TableCaption, TableContainer, IconButton,Box, Flex, Button } from '@chakra-ui/react';
-import { EditIcon } from '@chakra-ui/icons';
 import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { createCategory, editCategory} from '../redux/license/licenseSlice';

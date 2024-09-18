@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import { useEffect } from 'react'
 import LicenseCalendar from './subComponents/LicenseCalendar'
 import LicenseNot from './subComponents/LicenseNot'
 import LicenseStatus from './subComponents/LicenseStatus'

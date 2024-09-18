@@ -1,16 +1,15 @@
 import { useState, type ChangeEvent, type FormEvent} from "react";
 import "../../public/css/Login.css"
 import useLoginToggle from '../utils/login-sign';
-import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch, type RootState } from "../types";
+import { useDispatch } from "react-redux";
+import { AppDispatch} from "../types";
 import {userLogin,userSignup} from "../redux/user/userSlice";
 import {toast, ToastContainer} from "react-toastify"
 import 'react-toastify/dist/ReactToastify.css';
 import { useNavigate } from "react-router-dom";
 function Registration() {
-    const { user } = useSelector((state:RootState)=>state.user);
     const dispatch = useDispatch<AppDispatch>();
-    const [login, toggleloginmode] = useLoginToggle();
+    const [, toggleloginmode] = useLoginToggle();
     const navigate = useNavigate();
     const [formValue, setformValue] = useState({
         email:'',

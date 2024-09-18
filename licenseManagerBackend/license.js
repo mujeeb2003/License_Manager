@@ -4,6 +4,7 @@ require("dotenv").config();
 const localStorage = new LocalStorage('./middlewares/scratch'); // Path where localStorage data will be stored
 const { Log } = require("./models/index");
 // // Function to generate a license key
+const fs = require('fs');
 // function generateLicenseKey(data, secret) {
 //     console.log(data,secret);
 //     const jsonData = JSON.stringify(data);
@@ -26,38 +27,37 @@ const { Log } = require("./models/index");
 
 
 
-const fs = require('fs');
 
 
 // Function to verify the license key
-function verifyLicenseKey(licenseKey, secret) {
-    try {
-        console.log(licenseKey,secret);
-        const decoded = Buffer.from(licenseKey, 'base64').toString('ascii');
-        const [jsonData, providedHash] = decoded.split('.');
-        const validHash = crypto.createHmac('sha256', secret).update(jsonData).digest('hex');
+// function verifyLicenseKey(licenseKey, secret) {
+//     try {
+//         console.log(licenseKey,secret);
+//         const decoded = Buffer.from(licenseKey, 'base64').toString('ascii');
+//         const [jsonData, providedHash] = decoded.split('.');
+//         const validHash = crypto.createHmac('sha256', secret).update(jsonData).digest('hex');
 
-        if (validHash !== providedHash) {
-            throw new Error('Invalid license hash');
-        }
+//         if (validHash !== providedHash) {
+//             throw new Error('Invalid license hash');
+//         }
 
-        const licenseData = JSON.parse(jsonData);
+//         const licenseData = JSON.parse(jsonData);
 
-        // Check expiration
-        const currentDate = new Date();
-        const expirationDate = new Date(licenseData.validUntil);
+//         // Check expiration
+//         const currentDate = new Date();
+//         const expirationDate = new Date(licenseData.validUntil);
 
-        if (currentDate > expirationDate) {
-            throw new Error('License expired');
-        }
+//         if (currentDate > expirationDate) {
+//             throw new Error('License expired');
+//         }
 
-        // Check other conditions (allowed users, etc.)
-        return licenseData;
-    } catch (error) {
-        console.error('License verification failed:', error.message);
-        return false;
-    }
-}
+//         // Check other conditions (allowed users, etc.)
+//         return licenseData;
+//     } catch (error) {
+//         console.error('License verification failed:', error.message);
+//         return false;
+//     }
+// }
 
 // Function to check the license file
 function checkLicenseFile() {
@@ -70,7 +70,7 @@ function checkLicenseFile() {
 
         const licenseKey = fs.readFileSync(licenseFilePath, 'utf8');
         // Save license to localStorage
-        const storedLicense = localStorage.getItem('license');
+        const storedLicense = localStorage.getItem('license') || "";
         if (storedLicense && storedLicense !== licenseKey) {
             console.error('License file has been tampered with. Terminating.');
             process.exit(1);

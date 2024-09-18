@@ -1,4 +1,3 @@
-import React from 'react';
 import type { License} from '../types';
 import {Button, Icon} from "@chakra-ui/react"
 import { DownloadIcon } from '@chakra-ui/icons';

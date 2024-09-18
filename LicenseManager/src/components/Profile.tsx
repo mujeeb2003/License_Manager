@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import  { useState } from "react";
 import { Box, Button, Drawer, DrawerBody, DrawerFooter, DrawerHeader, DrawerOverlay, DrawerContent, DrawerCloseButton, Flex, Text, Input, VStack, HStack, useDisclosure,
 } from "@chakra-ui/react";
 import { RootState } from "../types";
@@ -7,7 +7,7 @@ import { useSelector } from "react-redux";
 const ProfilePage = () => {
   const { user } = useSelector((state:RootState)=>state.user);
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [lastLogin, setLastLogin] = useState((new Date()));  // default value
+  const [lastLogin] = useState((new Date()));  // default value
   const [editform, seteditform] = useState({username:"",password:""});
 
 

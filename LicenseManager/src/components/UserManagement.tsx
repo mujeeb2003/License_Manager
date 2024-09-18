@@ -21,7 +21,6 @@ import {
   AccordionButton,
   AccordionIcon,
   AccordionPanel,
-  Spinner,
   Tooltip,
   useDisclosure,
   Modal,
@@ -53,7 +52,7 @@ import { ToastContainer, toast } from 'react-toastify';
 
 const UserManagement: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { users, loading, error,user } = useSelector(
+  const { users,user } = useSelector(
     (state: RootState) => state.user
   );
 
