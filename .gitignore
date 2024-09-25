@@ -1,4 +1,5 @@
 licenseManagerBackend/node_modules
+licenseManagerBackend/.env
 licenseManager/node_modules
 licensePactices
 # Logs
