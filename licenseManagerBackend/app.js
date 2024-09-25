@@ -11,7 +11,6 @@ const app = express();
 
 // Import the cron job (this will start the cron job when app starts)
 require('./cron/licenseCron');
-// const { running } = require("./license.js");
 const PORT = process.env.PORT || 5000;
 
 

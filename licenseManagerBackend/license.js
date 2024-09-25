@@ -100,6 +100,7 @@ module.exports.running = async (req, res, next) => {
     if (!licenseData) {
         Log.create({ user_id: 0, license_id: null, description: 'Invalid or expired license. Terminating application.' });
         console.error('Invalid or expired license. Terminating application.');
+        res.status(400).send({error:'Invalid or expired license. Terminating application.'});
         process.exit(1); // Exit the application if license is invalid
     }
 

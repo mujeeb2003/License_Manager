@@ -15,7 +15,7 @@ cron.schedule('0  9 * * *', async () => {
     }
 });
 
-cron.schedule('0 0 1 */3 *', function() {
-    console.log('Running the task to send logs to Syslog');
-    sendLogsToSyslog();
-});
+// cron.schedule('0 0 1 */3 *', function() {
+//     console.log('Running the task to send logs to Syslog');
+//     sendLogsToSyslog();
+// });
