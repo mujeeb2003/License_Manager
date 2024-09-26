@@ -2,6 +2,7 @@ const crypto = require("node:crypto");
 const fs = require("fs");
 const readline = require("readline");
 const bcrypt = require("bcrypt");
+
 const {
     getHardwareId,
     deriveSecretKey,

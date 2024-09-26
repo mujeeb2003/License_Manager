@@ -9,7 +9,31 @@ function getHardwareId() {
         .flat()
         .filter(({ family, internal }) => family === "IPv4" && !internal)
         .map(({ mac }) => mac);
-    const hdd = crypto.createHash("sha256").update(os.hostname()).digest("hex");
+    let hdd;
+    try {
+        // Try Windows-specific method
+        const { execSync } = require("child_process");
+        const output = execSync("wmic diskdrive get SerialNumber").toString();
+        const serialNumber = output.split("\n")[1].trim();
+        hdd = crypto.createHash("sha256").update(serialNumber).digest("hex");
+    } catch (error) {
+        try {
+            // Try Linux-specific method
+            const { execSync } = require("child_process");
+            const output = execSync("lsblk -ndo serial").toString();
+            const serialNumber = output.trim();
+            hdd = crypto
+                .createHash("sha256")
+                .update(serialNumber)
+                .digest("hex");
+        } catch (error) {
+            // Fallback to hostname if both methods fail
+            hdd = crypto
+                .createHash("sha256")
+                .update(os.hostname())
+                .digest("hex");
+        }
+    }
     return crypto
         .createHash("sha256")
         .update(`${cpu}${network.join()}${hdd}`)

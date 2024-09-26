@@ -71,5 +71,5 @@ module.exports.running = async (req, res, next) => {
     }
 };
 
-// This is for testing purposes. Remove or comment out in production.
-console.log(checkLicenseFile());
+// // This is for testing purposes. Remove or comment out in production.
+// console.log(checkLicenseFile());
