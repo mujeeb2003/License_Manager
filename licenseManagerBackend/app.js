@@ -12,13 +12,13 @@ const app = express();
 // Import the cron job (this will start the cron job when app starts)
 require('./cron/licenseCron');
 const PORT = process.env.PORT || 5000;
-
+const {running}= require("./middlewares/License.js");
 
 app.use(express.json())
 app.use(cookieParser())
 app.use(bodyParser.json())
 app.use(cors());
-// app.use(running);
+app.use(running);
 
 app.use('/',router);
 app.use('/license',licenseRouter);
