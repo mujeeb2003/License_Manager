@@ -1,0 +1,41 @@
+version: "3.8"
+
+services:
+    backend:
+        build:
+            context: ./licenseManagerBackend/
+            dockerfile: Dockerfile
+        image: licensebk:latest
+        ports:
+            - "5000:5000"
+        environment:
+            - SECRET_KEY=secret
+            - DB_HOST=host.docker.internal
+            - DB_PORT=3306
+            - DB_USER=root
+            - DB_NAME=lic_man
+            - DB_CHECK=
+            - SMTP_USER=mujeeb.rehman@4sight.com.pk
+            - SMTP_PASS=OkayedBroochRuntFeller
+            - SMTP_PORT=25
+            - SMTP_HOST=cloudhost-832020.us-midwest-1.nxcli.net
+        networks:
+            - my_network
+    frontend:
+        build:
+            context: ./LicenseManager/
+            dockerfile: Dockerfile
+        image: licensedr:latest
+        ports:
+            - "81:80"
+            # - "5173:5173"  # Commented out as we're using Nginx
+        environment:
+            - VITE_API_URL=http://localhost:5000
+        depends_on:
+            - backend
+        networks:
+            - my_network
+
+networks:
+    my_network:
+        driver: bridge
