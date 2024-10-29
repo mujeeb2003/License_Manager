@@ -39,7 +39,7 @@ body{
 .top-container .nav{
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  /* justify-content: ; */
   padding: 20px 20px 14px;
   border-bottom: 2px solid #1e293b;
 }
@@ -48,6 +48,7 @@ body{
   display: flex;
   align-items: center;
   gap: 6px;
+  margin-right:auto;
 }
 
 .top-container .nav .logo i{
@@ -61,6 +62,7 @@ body{
 
 .top-container .nav .nav-links{
   display: flex;
+  margin-right:auto;
   gap: 20px;
 }
 

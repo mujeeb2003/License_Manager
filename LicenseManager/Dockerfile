@@ -10,14 +10,16 @@ RUN npm install
 
 COPY . .
 
-RUN npm run build
+EXPOSE 5173
 
-FROM nginx:alpine AS final
+CMD [ "npm","run","dev" ]
 
-COPY --from=builder /home/app/frontend/dist /usr/share/nginx/html
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# FROM nginx:alpine AS final
 
-EXPOSE 80
+# COPY --from=builder /home/app/frontend/dist /usr/share/nginx/html
+# # COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-CMD ["nginx", "-g", "daemon off;"]
+# EXPOSE 80
+
+# CMD ["nginx", "-g", "daemon off;"]
 

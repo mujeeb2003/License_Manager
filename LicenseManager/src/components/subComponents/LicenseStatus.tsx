@@ -18,8 +18,8 @@ function LicenseStatus() {
                 <div className="info">
                     <div>
                         <h5>Up to Date</h5>
-                        <p>- 3 SLA</p>
-                        <p>- 1 PAM</p>
+                        {/* <p>- 3 SLA</p> */}
+                        {/* <p>- 1 PAM</p> */}
                     </div>
                     <p id="iteminfo" style={{color: "var(--primary)"}}>{licenses.filter((license)=>license['Status.status_name'] === "Up to Date").length.toString()}</p>
                 </div>
@@ -28,8 +28,8 @@ function LicenseStatus() {
                 <div className="info">
                     <div>
                         <h5>Near to Expiry</h5>
-                        <p>- 2 SLA</p>
-                        <p>- 5 PAM</p>
+                        {/* <p>- 2 SLA</p> */}
+                        {/* <p>- 5 PAM</p> */}
                     </div>
                     <p id="iteminfo" style={{color: "var(--warning)"}}>{licenses.filter((license)=>license['Status.status_name'] === "Near to Expiry").length.toString()}</p>
                 </div>
@@ -38,8 +38,8 @@ function LicenseStatus() {
                 <div className="info">
                     <div>
                         <h5>Expired</h5>
-                        <p>- 4 SLA</p>
-                        <p>- 8 PAM</p>
+                        {/* <p>- 4 SLA</p> */}
+                        {/* <p>- 8 PAM</p> */}
                     </div>
                     <p id="iteminfo" style={{color: "var(--danger)"}}>{licenses.filter((license)=>license['Status.status_name'] === "Expired").length.toString()}</p>
                 </div>
@@ -47,16 +47,16 @@ function LicenseStatus() {
 
             <div className="item" style={{display:'flex',flexDirection:'column',gap:'10px'}}>
                 <span style={{color:'#ccc'}}>
-                    <p>Up to Date<span style={{float:'right',color:'var(--primary)'}}>{(licenses.filter((license)=>license['Status.status_name'] === "Up to Date").length / licenses.length * 100).toPrecision(2)}%</span></p> 
-                    <Progress isAnimated hasStripe value={licenses.filter((license)=>license['Status.status_name'] === "Up to Date").length / licenses.length * 100} colorScheme='blue' />
+                    <p>Up to Date<span style={{float:'right',color:'var(--primary)'}}>{((licenses.filter((license)=>license['Status.status_name'] === "Up to Date").length / licenses.length * 100) || 0).toPrecision(2)}%</span></p> 
+                    <Progress isAnimated hasStripe value={(licenses.filter((license)=>license['Status.status_name'] === "Up to Date").length / licenses.length * 100) || 0} colorScheme='blue' />
                 </span>
                 <span style={{color:'#ccc'}}>
-                    <p>Near to expiry<span style={{float:'right',color:'var(--warning)'}}>{(licenses.filter((license)=>license['Status.status_name'] === "Near to Expiry").length / licenses.length * 100).toPrecision(2)}%</span></p>
-                    <Progress isAnimated hasStripe value={licenses.filter((license)=>license['Status.status_name'] === "Near to Expiry").length / licenses.length * 100} colorScheme='yellow'/>
+                    <p>Near to expiry<span style={{float:'right',color:'var(--warning)'}}>{((licenses.filter((license)=>license['Status.status_name'] === "Near to Expiry").length / licenses.length * 100) || 0).toPrecision(2)}%</span></p>
+                    <Progress isAnimated hasStripe value={(licenses.filter((license)=>license['Status.status_name'] === "Near to Expiry").length / licenses.length * 100) || 0} colorScheme='yellow'/>
                 </span>
                 <span style={{color:'#ccc'}}>
-                    <p>Expired<span style={{float:'right',color:'var(--danger)'}}>{(licenses.filter((license)=>license['Status.status_name'] === "Expired").length / licenses.length * 100).toPrecision(2)}%</span></p>
-                    <Progress isAnimated hasStripe value={licenses.filter((license)=>license['Status.status_name'] === "Expired").length / licenses.length * 100} colorScheme='red'/>
+                    <p>Expired<span style={{float:'right',color:'var(--danger)'}}>{((licenses.filter((license)=>license['Status.status_name'] === "Expired").length / licenses.length * 100) || 0).toPrecision(2)}%</span></p>
+                    <Progress isAnimated hasStripe value={(licenses.filter((license)=>license['Status.status_name'] === "Expired").length / licenses.length * 100) || 0} colorScheme='red'/>
                 </span>
                 {/* <canvas className="activity-chart"></canvas> */}
             </div>

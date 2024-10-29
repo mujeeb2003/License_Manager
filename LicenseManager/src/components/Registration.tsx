@@ -39,8 +39,11 @@ function Registration() {
                 return toast.success(result.message);
             }
 
+            toast.error(result.error);
+
         } catch (error:any) {
             if (error && error.error) return toast.error(error.error);
+            toast.error(error.error);
             console.log(error);
         }
     }

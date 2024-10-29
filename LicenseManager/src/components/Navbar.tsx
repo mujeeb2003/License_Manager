@@ -33,8 +33,8 @@ e
       </div>
 
       <div className="right-section">
-        <i className='bx bx-bell'></i>
-        <i className='bx bx-search'></i>
+        {/* <i className='bx bx-bell'></i>
+        <i className='bx bx-search'></i> */}
 
         <div className="profile">
               <Menu size={"sm"}>

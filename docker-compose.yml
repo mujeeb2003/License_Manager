@@ -10,7 +10,7 @@ services:
             - "5000:5000"
         environment:
             - SECRET_KEY=secret
-            - DB_HOST=host.docker.internal
+            - DB_HOST=localhost
             - DB_PORT=3306
             - DB_USER=root
             - DB_NAME=lic_man
@@ -21,18 +21,29 @@ services:
             - SMTP_HOST=cloudhost-832020.us-midwest-1.nxcli.net
         networks:
             - my_network
+        depends_on:
+            - mysql
     frontend:
         build:
             context: ./LicenseManager/
             dockerfile: Dockerfile
         image: licensedr:latest
         ports:
-            - "81:80"
-            # - "5173:5173"  # Commented out as we're using Nginx
+            # - "80:80"
+            - "5173:5173"  # Commented out as we're using Nginx
         environment:
             - VITE_API_URL=http://localhost:5000
         depends_on:
             - backend
+        networks:
+            - my_network
+    mysql:
+        image: mysql:5.7
+        environment:
+            MYSQL_ROOT_PASSWORD: root
+            MYSQL_DATABASE: lic_man
+        ports:
+            - "3306:3306"
         networks:
             - my_network
 
