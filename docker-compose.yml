@@ -14,7 +14,7 @@ services:
             - DB_PORT=3306
             - DB_USER=root
             - DB_NAME=lic_man
-            - DB_CHECK=
+            - DB_CHECK=root
             - SMTP_USER=mujeeb.rehman@4sight.com.pk
             - SMTP_PASS=OkayedBroochRuntFeller
             - SMTP_PORT=25
