@@ -14,11 +14,11 @@ services:
             - DB_PORT=3306
             - DB_USER=root
             - DB_NAME=lic_man
-            - DB_CHECK=root
-            - SMTP_USER=mujeeb.rehman@4sight.com.pk
-            - SMTP_PASS=OkayedBroochRuntFeller
-            - SMTP_PORT=25
-            - SMTP_HOST=cloudhost-832020.us-midwest-1.nxcli.net
+            - DB_CHECK=
+            - SMTP_USER=
+            - SMTP_PASS=
+            - SMTP_PORT=
+            - SMTP_HOST=
         networks:
             - my_network
         depends_on:
