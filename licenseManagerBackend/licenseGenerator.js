@@ -16,7 +16,7 @@ const rl = readline.createInterface({
 });
 
 const GENERATION_PASSWORD =
-    "$2b$10$w8p1l0pYWuvL2RHeTBfztuwJ3hhcp.Pp1W/PPYAvH15w6F9FusLjW";
+    "$2a$12$jc4xgY6aJv9SvXkW6HkCVuyny5yullfdzAQxkuV26ErAfYtEGMacO";
 
 function promptUser() {
     rl.stdoutMuted = true;

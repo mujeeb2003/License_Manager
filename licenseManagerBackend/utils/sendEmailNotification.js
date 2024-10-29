@@ -1,5 +1,6 @@
 const nodemailer = require('nodemailer');
 require("dotenv").config();
+const { decryptPassword } = require("../utils/encryptPassword.js");
 
 const transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST,
@@ -7,7 +8,7 @@ const transporter = nodemailer.createTransport({
     secure: false, // Use `true` for port 465, `false` for all other ports
     auth: {
         user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
+        pass: decryptPassword(process.env.SMTP_PASS),
     },
 });
 

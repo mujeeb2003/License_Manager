@@ -179,7 +179,7 @@ module.exports.checkExpiringLicenses = async () => {
     licensesAboutToExpire.forEach(license => {
         const { username: userName, email } = license.User.email;
         const subject = `License Expiry Notification: ${license.title}`;
-        const message = `Dear ${license.User.username}, the license ${license.title} is about to expire on ${license.expiry_date}. Please take the necessary actions.`;
+        const message = `Dear All,\nThe license ${license.title} is about to expire on ${license.expiry_date}.\n\nPlease take the necessary actions.`;
         sendNotificationEmail("mrehman0501305@gmail.com", subject, message);
     });
 

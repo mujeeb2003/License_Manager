@@ -1,7 +1,7 @@
 const { Category, Vendor, License, Log} = require("../models/index.js");
 const syslog = require("syslog-client");
 const { Op} = require("sequelize");
-const client = syslog.createClient("localhost", { port: 514 }); // Create syslog client
+// const client = syslog.createClient("localhost", { port: 514 }); // Create syslog client
 
 module.exports.getLicenseopt = async(req,res) => {
     try {
@@ -132,44 +132,44 @@ module.exports.editCategory = async (req,res) => {
     
 }
 
-module.exports.sendLogsToSyslog = async function sendLogsToSyslog() {
-    try {
-        // Get logs from the last 3 months
-        const logs = await Log.findAll({
-            where: { createdAt: { [Op.gte]: new Date(Date.now() - 3 * 30 * 24 * 60 * 60 * 1000) } }
-        });
+// module.exports.sendLogsToSyslog = async function sendLogsToSyslog() {
+//     try {
+//         // Get logs from the last 3 months
+//         const logs = await Log.findAll({
+//             where: { createdAt: { [Op.gte]: new Date(Date.now() - 3 * 30 * 24 * 60 * 60 * 1000) } }
+//         });
 
-        // Send logs to Syslog server
-        logs.forEach(log => {
-            const logMessage = `ID: ${log.log_id}, Message: ${log.description}, Time: ${log.createdAt}`;
+//         // Send logs to Syslog server
+//         logs.forEach(log => {
+//             const logMessage = `ID: ${log.log_id}, Message: ${log.description}, Time: ${log.createdAt}`;
             
-            // Sending the log to syslog
-            client.log(logMessage, { facility: syslog.Facility.Local0, severity: syslog.Severity.Informational }, (error) => {
-                if (error) {
-                    console.error('Error sending log to syslog:', error);
-                }
-            });
-        });
+//             // Sending the log to syslog
+//             client.log(logMessage, { facility: syslog.Facility.Local0, severity: syslog.Severity.Informational }, (error) => {
+//                 if (error) {
+//                     console.error('Error sending log to syslog:', error);
+//                 }
+//             });
+//         });
 
-        console.log('Logs successfully sent to Syslog');
+//         console.log('Logs successfully sent to Syslog');
 
-        // Optionally clean up old logs after sending
-        await cleanupOldLogs();
+//         // Optionally clean up old logs after sending
+//         await cleanupOldLogs();
 
-    } catch (error) {
-        console.error('Error while sending logs to Syslog:', error);
-    }
-};
+//     } catch (error) {
+//         console.error('Error while sending logs to Syslog:', error);
+//     }
+// };
 
-// Cleanup function to remove old logs
-async function cleanupOldLogs() {
-    try {
-        // Delete logs older than 3 months
-        await Log.destroy({ 
-            where: { createdAt: { [Op.lt]: new Date(Date.now() - 3 * 30 * 24 * 60 * 60 * 1000) } } 
-        });
-        console.log('Old logs successfully deleted');
-    } catch (error) {
-        console.error('Error cleaning up logs:', error);
-    }
-}
+// // Cleanup function to remove old logs
+// async function cleanupOldLogs() {
+//     try {
+//         // Delete logs older than 3 months
+//         await Log.destroy({ 
+//             where: { createdAt: { [Op.lt]: new Date(Date.now() - 3 * 30 * 24 * 60 * 60 * 1000) } } 
+//         });
+//         console.log('Old logs successfully deleted');
+//     } catch (error) {
+//         console.error('Error cleaning up logs:', error);
+//     }
+// }

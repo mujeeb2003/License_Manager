@@ -145,7 +145,7 @@ module.exports.updateUser = async (req,res) => {
 
         bcrypt.genSalt(10,(err,salt)=>{
             if(err) return res.status(400).send({error:err.message});
-            bcrypt(password,salt,async (err,hash)=>{
+            bcrypt.hash(password,salt,async (err,hash)=>{
                 if(err) return res.status(400).send({error:err.message});
 
                 user.username = username;
