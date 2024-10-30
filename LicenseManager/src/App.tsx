@@ -13,9 +13,10 @@ import { getLoggedinUser } from "./redux/user/userSlice";
 import { useEffect } from "react";
 import UserManagementComponent from "./components/UserManagement";
 import ProfilePage from "./components/Profile";
+import Managers from "./components/Managers";
 
 function App() {
-  const {isSuperAdmin} = useSelector((state:RootState)=>state.user);
+  const {isSuperAdmin,isAdmin} = useSelector((state:RootState)=>state.user);
   const dispatch = useDispatch<AppDispatch>();
 
   useEffect(() => {
@@ -41,6 +42,7 @@ function App() {
                   <Route path="/Vendors" element={<Vendor />} />
                   <Route path="/Category" element={<Category />} />
                   {isSuperAdmin && <Route path="/userManagement" element={<UserManagementComponent />} />}
+                  {isAdmin && <Route path="/productManager" element={<Managers />} />}
                   <Route path="/profile" element={<ProfilePage />}/>
                 </Routes>
               </>

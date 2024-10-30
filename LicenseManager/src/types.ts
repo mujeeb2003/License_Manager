@@ -20,8 +20,8 @@ export type User = {
 export type UserFilters = {
     name: string;
     email: string;
-    isAdmin: string; // e.g., "admin", "user", or empty for all
-    isDisable: string; // e.g., "active", "disabled", or empty for all
+    isAdmin: string; 
+    isDisable: string; 
 };
 
 export type licenseState = {
@@ -29,6 +29,7 @@ export type licenseState = {
     status:Status[],
     vendors:Vendor[],
     categories:Category[],
+    managers:Manager[],
     error:string,
     loading:boolean,
     licExpInWeek:License[],
@@ -43,6 +44,8 @@ export type License = {
     "Vendor.vendor_name":string
     "Category.category_name":string
     "Status.status_name":string
+    "Manager.name":string
+    "Manager.email":string
 }
 
 export type Filters = {
@@ -70,16 +73,26 @@ export type Category = {
     category_id:number,
     category_name:string
 }
+
+export type Manager = {
+    manager_id:number,
+    name:string,
+    email:string,
+    project:string
+}
+
 export type licenseForm = {
     title: string,
     expiry_date: Date | null,
     "Vendor.vendor_id": number,
     "Category.category_id": number,
-    // "Status.status_id": number
+    "Manager.manager_id": number
 }
+
 export type categoryForm = {
     category_name:string,
 }
+
 export type vendorForm = {
     vendor_name:string,
     vendor_email:string,
@@ -87,6 +100,13 @@ export type vendorForm = {
     vendor_rep_phone:string,
     vendor_rep_email:string,
 }
+
+export type managerForm = {
+    name: string;
+    email: string;
+    project: string;
+}
+
 export type DialogProps = {
     license_id?:number
     category_id?:number

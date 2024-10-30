@@ -5,7 +5,6 @@ import { Tab, TabList, TabPanel, TabPanels, Tabs } from '@chakra-ui/react';
 function LicenseNot() {
     const { licExpInWeek,newLic} = useSelector((state:RootState)=>state.license);
 
-    console.log(licExpInWeek,newLic);
 
   return (
     <div className="upcoming">

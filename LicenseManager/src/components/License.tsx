@@ -210,6 +210,12 @@ function License() {
                   <Th onClick={() => handleSort('Category.category_name')} cursor="pointer">
                     Category {sortField === 'Category.category_name' && (sortDirection === 'asc' ? '▲' : '▼')}
                   </Th>
+                  <Th onClick={() => handleSort('Manager.name')} cursor="pointer">
+                    Product Manager Name {sortField === 'Manager.name' && (sortDirection === 'asc' ? '▲' : '▼')}
+                  </Th>
+                  <Th onClick={() => handleSort('Manager.email')} cursor="pointer">
+                    Product Manager email {sortField === 'Manager.email' && (sortDirection === 'asc' ? '▲' : '▼')}
+                  </Th>
                   <Th onClick={() => handleSort('Status.status_name')} cursor="pointer">
                     Status {sortField === 'Status.status_name' && (sortDirection === 'asc' ? '▲' : '▼')}
                   </Th>
@@ -224,6 +230,8 @@ function License() {
                     <Td>{row['User.username']}</Td>
                     <Td>{row['Vendor.vendor_name']}</Td>
                     <Td>{row['Category.category_name']}</Td>
+                    <Td>{row['Manager.name']}</Td>
+                    <Td>{row['Manager.email']}</Td>
                     <Td>{row['Status.status_name']}</Td>
                     <Td>
                       <AlertDialogS license_id={row.license_id}/>

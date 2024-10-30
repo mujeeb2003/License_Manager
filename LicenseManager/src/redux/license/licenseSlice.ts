@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import type { categoryForm, licenseForm, licenseState, vendorForm } from "../../types";
+import type { categoryForm, licenseForm, licenseState, vendorForm ,managerForm} from "../../types";
 import axios from "axios";
 
 const initialState: licenseState = {
@@ -9,6 +9,7 @@ const initialState: licenseState = {
     categories: [],
     status: [],
     vendors: [],
+    managers: [],
     error: "",
     loading: false
 };
@@ -61,6 +62,17 @@ export const createCategory = createAsyncThunk("license/createCategory", async (
 export const createVendor = createAsyncThunk("license/createVendor", async (data: vendorForm, { rejectWithValue }) => {
     try {
         const res = await axios.post(`${API_URL}/createVendor`, data);
+        return res.data;
+    } catch (error: any) {
+        if (error.response && error.response.data) return rejectWithValue(error.response.data);
+
+        return rejectWithValue({ error: error.message });
+    }
+});
+
+export const createManager = createAsyncThunk("license/createManager", async (data: managerForm, { rejectWithValue }) => {
+    try {
+        const res = await axios.post(`${API_URL}/createManager`, data);
         return res.data;
     } catch (error: any) {
         if (error.response && error.response.data) return rejectWithValue(error.response.data);
@@ -138,6 +150,18 @@ export const editVendor = createAsyncThunk("license/editVendor", async (data: ve
     }
 });
 
+export const editManager = createAsyncThunk("license/editManager", async (data: managerForm & { manager_id: number }, { rejectWithValue }) => {
+    console.log("Manager", data);
+    try {
+        const res = await axios.post(`${API_URL}/editManager`, data);
+        return res.data;
+    } catch (error: any) {
+        if (error.response && error.response.data) return rejectWithValue(error.response.data);
+
+        rejectWithValue({ error: error.message });
+    }
+});
+
 export const getLicenseNot = createAsyncThunk("license/getLicenseNot", async (_undefined, { rejectWithValue }) => {
     try {
         const res = await axios.get(`${API_URL}/license/getLicenseNot`);
@@ -148,6 +172,8 @@ export const getLicenseNot = createAsyncThunk("license/getLicenseNot", async (_u
         return rejectWithValue({ error: error.message });
     }
 });
+
+
 
 const licenseSlice = createSlice({
     initialState,
@@ -173,6 +199,7 @@ const licenseSlice = createSlice({
             state.categories = payload.categories;
             state.status = payload.status;
             state.vendors = payload.vendors;
+            state.managers = payload.managers;
         });
         builder.addCase(getLicenseOpt.rejected, (state, { payload }) => {
             state.loading = false;
@@ -292,6 +319,30 @@ const licenseSlice = createSlice({
             state.newLic = payload.newLic;
         });
         builder.addCase(getLicenseNot.rejected, (state, { payload }) => {
+            state.loading = false;
+            state.error = payload as string;
+        });
+        builder.addCase(createManager.pending, (state) => {
+            state.loading = true;
+        });
+        builder.addCase(createManager.fulfilled, (state, { payload }) => {
+            state.loading = false;
+            state.managers.push(payload.manager);}
+        );
+        builder.addCase(createManager.rejected, (state, { payload }) => {
+            state.loading = false;
+            state.error = payload as string;
+        });
+        builder.addCase(editManager.pending, (state) => {
+            state.loading = true;
+        });
+        builder.addCase(editManager.fulfilled, (state, { payload }) => {
+            state.loading = false;
+            state.managers = state.managers.map((manager) => {
+                return manager.manager_id == payload.manager.manager_id ? payload.manager : manager;
+            });
+        });
+        builder.addCase(editManager.rejected, (state, { payload }) => {
             state.loading = false;
             state.error = payload as string;
         });

@@ -55,7 +55,7 @@ function LicenseStatus() {
                     <Progress isAnimated hasStripe value={(licenses.filter((license)=>license['Status.status_name'] === "Near to Expiry").length / licenses.length * 100) || 0} colorScheme='yellow'/>
                 </span>
                 <span style={{color:'#ccc'}}>
-                    <p>Expired<span style={{float:'right',color:'var(--danger)'}}>{((licenses.filter((license)=>license['Status.status_name'] === "Expired").length / licenses.length * 100) || 0).toFixed(2)}%</span></p>
+                    <p>Expired<span style={{float:'right',color:'var(--danger)'}}>{((licenses.filter((license)=>license['Status.status_name'] === "Expired").length / licenses.length * 100) || 0).toFixed(0)}%</span></p>
                     <Progress isAnimated hasStripe value={(licenses.filter((license)=>license['Status.status_name'] === "Expired").length / licenses.length * 100) || 0} colorScheme='red'/>
                 </span>
                 {/* <canvas className="activity-chart"></canvas> */}

@@ -6,7 +6,7 @@ import { toast } from 'react-toastify';
 import { AddIcon } from '@chakra-ui/icons';
 
 function LicenseModal({ onSave }: { onSave: (data: licenseForm) => void }) {
-    const {categories,vendors} = useSelector((state:RootState)=>state.license);
+    const {categories, vendors, managers} = useSelector((state:RootState)=>state.license);
     const { isOpen,onOpen, onClose } = useDisclosure();
     const { isAdmin } = useSelector((state:RootState)=>state.user);
 
@@ -19,6 +19,7 @@ function LicenseModal({ onSave }: { onSave: (data: licenseForm) => void }) {
         expiry_date: null,
         "Vendor.vendor_id": 0,
         "Category.category_id": 0,
+        "Manager.manager_id": 0,
     });
     
     const [errors, setErrors] = useState({
@@ -26,6 +27,7 @@ function LicenseModal({ onSave }: { onSave: (data: licenseForm) => void }) {
         expiry_date: '',
         "Vendor.vendor_id": '',
         "Category.category_id": '',
+        "Manager.manager_id": '',
     });
     
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -47,7 +49,7 @@ function LicenseModal({ onSave }: { onSave: (data: licenseForm) => void }) {
             expiry_date: '',
             "Vendor.vendor_id": '',
             "Category.category_id": '',
-            "Status.status_id": ''
+            "Manager.manager_id": '',
         }
         let error = false;
         if(!formData.title){
@@ -66,6 +68,10 @@ function LicenseModal({ onSave }: { onSave: (data: licenseForm) => void }) {
             newErrors["Category.category_id"] = 'Category is required';
             error = true;
         }
+        if(!formData["Manager.manager_id"]){
+            newErrors["Manager.manager_id"] = 'Product Manager is required';
+            error = true;
+        }
 
         setErrors(newErrors);
         setTimeout(() => {
@@ -74,7 +80,7 @@ function LicenseModal({ onSave }: { onSave: (data: licenseForm) => void }) {
                 expiry_date: '',
                 "Vendor.vendor_id": '',
                 "Category.category_id": '',
-                // "Status.status_id": ''
+                "Manager.manager_id": '',
             })
         },3000)
 
@@ -155,6 +161,24 @@ function LicenseModal({ onSave }: { onSave: (data: licenseForm) => void }) {
                             ))}
                         </Select>
                         <FormErrorMessage>{errors["Category.category_id"]}</FormErrorMessage>
+                    </FormControl>
+
+                    <FormControl isInvalid={!!errors["Manager.manager_id"]} mt={4}>
+                        <FormLabel>Product Manager</FormLabel>
+                        <Select
+                        required
+                        name="Manager.manager_id"
+                        value={formData["Manager.manager_id"]}
+                        onChange={handleInputChange}
+                        placeholder="Product Manager"
+                        >
+                            {managers.map((manager) => (
+                                <option key={manager.manager_id} value={manager.manager_id}>
+                                    {manager.name} - {manager.email}
+                                </option>
+                            ))}
+                        </Select>
+                        <FormErrorMessage>{errors["Manager.manager_id"]}</FormErrorMessage>
                     </FormControl>
                 </ModalBody>
                 

@@ -277,7 +277,7 @@ const UserManagement: React.FC = () => {
 
         {/* User Table */}
         <TableContainer>
-          <Table variant="striped" colorScheme="gray">
+          <Table variant="striped" colorScheme="gray" size={"sm"}>
             <TableCaption>Users Overview</TableCaption>
             <Thead bg="gray.100">
               <Tr>
