@@ -7,7 +7,7 @@ import { toast } from 'react-toastify';
 
 export default function LicenseEditModal({ license, onSave }: { license:License,onSave: (data: licenseForm&{license_id:number}) => void }) {
   const { isOpen, onOpen, onClose } = useDisclosure()
-  const {categories,vendors} = useSelector((state:RootState)=>state.license);
+  const {categories,vendors, managers} = useSelector((state:RootState)=>state.license);
   const { isAdmin } = useSelector((state:RootState)=>state.user);
 
   const handleClick = () =>{
@@ -19,6 +19,7 @@ export default function LicenseEditModal({ license, onSave }: { license:License,
     expiry_date: new Date(license.expiry_date),
     "Vendor.vendor_id": vendors.find((vendor)=>vendor.vendor_name === license['Vendor.vendor_name'])?.vendor_id || 0,
     "Category.category_id": categories.find((category)=>category.category_name === license['Category.category_name'])?.category_id || 0,
+    "Manager.manager_id": managers.find((manager)=>manager.name === license['Manager.name'])?.manager_id || 0,
   });
   
   const [errors, setErrors] = useState({
@@ -26,6 +27,7 @@ export default function LicenseEditModal({ license, onSave }: { license:License,
       expiry_date: '',
       "Vendor.vendor_id": '',
       "Category.category_id": '',
+      "Manager.manager_id": ''
   });
   
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -47,7 +49,8 @@ export default function LicenseEditModal({ license, onSave }: { license:License,
           expiry_date: '',
           "Vendor.vendor_id": '',
           "Category.category_id": '',
-          "Status.status_id": ''
+          "Status.status_id": '',
+          "Manager.manager_id": ''
       }
       let error = false;
       if(!formData.title){
@@ -66,6 +69,10 @@ export default function LicenseEditModal({ license, onSave }: { license:License,
           newErrors["Category.category_id"] = 'Category is required';
           error = true;
       }
+      if(!formData["Manager.manager_id"]){
+          newErrors["Manager.manager_id"] = 'Manager is required';
+          error = true;
+      }
 
       setErrors(newErrors);
       setTimeout(() => {
@@ -74,6 +81,7 @@ export default function LicenseEditModal({ license, onSave }: { license:License,
               expiry_date: '',
               "Vendor.vendor_id": '',
               "Category.category_id": '',
+              "Manager.manager_id": ''
           })
       },3000)
 
@@ -163,6 +171,24 @@ export default function LicenseEditModal({ license, onSave }: { license:License,
                         {categories.map((category) => (
                             <option key={category.category_id} value={category.category_id}>
                                 {category.category_name}
+                            </option>
+                        ))}
+                    </Select>
+                    <FormErrorMessage>{errors["Category.category_id"]}</FormErrorMessage>
+                </FormControl>
+
+                <FormControl isInvalid={!!errors["Manager.manager_id"]} mt={4}>
+                    <FormLabel>Manager</FormLabel>
+                    <Select
+                    required
+                    name="Manager.manager_id"
+                    value={formData["Manager.manager_id"]}
+                    onChange={handleInputChange}
+                    placeholder="Category"
+                    >
+                        {managers.map((manager) => (
+                            <option key={manager.manager_id} value={manager.manager_id}>
+                                {manager.name} - {manager.email}
                             </option>
                         ))}
                     </Select>
