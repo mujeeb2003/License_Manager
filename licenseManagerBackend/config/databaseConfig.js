@@ -1,6 +1,7 @@
 const {Sequelize} = require("sequelize");
 require("dotenv").config();
 const { decryptPassword } = require("../utils/encryptPassword.js");
+
 const dbConfig = {
     host: process.env.DB_HOST,
     user: process.env.DB_USER,

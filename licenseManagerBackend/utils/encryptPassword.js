@@ -15,7 +15,10 @@ function encryptPassword(password) {
     return iv.toString('hex') + ':' + encrypted;
 }
 
-module.exports.decryptPassword = function decryptPassword(encryptedPassword) {
+function decryptPassword(encryptedPassword) {
+    if(!isEncrypted(encryptedPassword)) {
+        return encryptedPassword;
+    }
     let [iv, encrypted] = encryptedPassword.split(':');
     iv = Buffer.from(iv, 'hex');
     encrypted = Buffer.from(encrypted, 'hex');
@@ -37,13 +40,15 @@ function saveEncryptedPasswordToEnv(variableName, encryptedPassword) {
     fs.writeFileSync(envPath, updatedEnvFileContent);
 }
 
-module.exports.encryptPassword = function encryptEnvPassword(variableName) {
+function encryptEnvPassword(variableName) {
     const password = process.env[variableName];
     if (!isEncrypted(password)) {
         const encryptedPassword = encryptPassword(password);
         saveEncryptedPasswordToEnv(variableName, encryptedPassword);
-        // console.log(`${variableName} encrypted and saved to .env file.`);
+        console.log(`${variableName} encrypted and saved to .env file.`);
     } else {
-        // console.log(`${variableName} is already encrypted.`);
+        console.log(`${variableName} is already encrypted.`);
     }
 }
+
+module.exports = { encryptEnvPassword, decryptPassword };
