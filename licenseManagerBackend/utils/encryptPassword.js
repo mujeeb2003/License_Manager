@@ -42,12 +42,8 @@ module.exports.encryptPassword = function encryptEnvPassword(variableName) {
     if (!isEncrypted(password)) {
         const encryptedPassword = encryptPassword(password);
         saveEncryptedPasswordToEnv(variableName, encryptedPassword);
-        console.log(`${variableName} encrypted and saved to .env file.`);
+        // console.log(`${variableName} encrypted and saved to .env file.`);
     } else {
-        console.log(`${variableName} is already encrypted.`);
+        // console.log(`${variableName} is already encrypted.`);
     }
 }
-
-// Encrypt both DB_PASSWORD and SMTP_PASS
-// encryptEnvPassword('DB_CHECK');
-// encryptEnvPassword('SMTP_PASS');

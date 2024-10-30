@@ -15,6 +15,7 @@ function checkLicenseFile() {
             );
             process.exit(1);
         }
+        
 
         const encryptedLicense = fs.readFileSync(licenseFilePath, "utf8");
         const secretKey = deriveSecretKey();
@@ -72,4 +73,4 @@ module.exports.running = async (req, res, next) => {
 };
 
 // // This is for testing purposes. Remove or comment out in production.
-// console.log(checkLicenseFile());
+console.log(checkLicenseFile());

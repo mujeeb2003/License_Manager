@@ -117,10 +117,17 @@ module.exports.editLicense = async (req,res) => {
         
         if(!license) return res.status(404).send({error:"License not found"});
         
+        let status_id = 1;
+        const today = new Date();
+        const oneMonthFromNow = new Date(today.setMonth(today.getMonth() + 1));
+        if(new Date(expiry_date) < oneMonthFromNow) status_id = 2;
+        
+        
         license.title= title;
         license.expiry_date = expiry_date;
         license.vendor_id = vendor_id;
         license.category_id = category_id;
+        license.status_id = status_id;
         
         await license.save();
         
