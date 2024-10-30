@@ -40,6 +40,14 @@ const License = db.define('License', {
             key: 'category_id'
         },
     },
+    manager_id:{
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+            model: 'managers',
+            key: 'manager_id'
+        }
+    },
     status_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
@@ -48,7 +56,6 @@ const License = db.define('License', {
             key: 'status_id'
         },
     },
-    
 }, {
     tableName: 'licenses'
 });

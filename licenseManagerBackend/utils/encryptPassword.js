@@ -19,6 +19,7 @@ function decryptPassword(encryptedPassword) {
     if(!isEncrypted(encryptedPassword)) {
         return encryptedPassword;
     }
+
     let [iv, encrypted] = encryptedPassword.split(':');
     iv = Buffer.from(iv, 'hex');
     encrypted = Buffer.from(encrypted, 'hex');

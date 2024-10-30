@@ -1,11 +1,12 @@
-const { License, User, Vendor,Category, Status,Log } = require("../models/index.js");
+const { License, User, Vendor,Category, Status,Log, Manager } = require("../models/index.js");
 const { Op } = require("sequelize")
 const { sendNotificationEmail } = require("../utils/sendEmailNotification.js");
+
 module.exports.getLicenses = async (req,res) => {
     try {
         const licenses = await License.findAll({
             attributes:{
-                exclude:['createdAt','updatedAt',"user_id","vendor_id","category_id","status_id"],
+                exclude:['createdAt','updatedAt',"user_id","vendor_id","category_id","status_id","manager_id"],
             },
             include:[
                 {
@@ -24,6 +25,10 @@ module.exports.getLicenses = async (req,res) => {
                     model:Status,
                     attributes:["status_name"]
                 },
+                {
+                    model:Manager,
+                    attributes:["name","email"]
+                }
             ],
             raw:true,
             order:[["expiry_date","ASC"]]
@@ -39,7 +44,7 @@ module.exports.getLicenses = async (req,res) => {
 }
 
 module.exports.createLicense = async (req,res) => {
-    const {title, expiry_date, "Vendor.vendor_id": vendor_id, "Category.category_id":category_id} = req.body;
+    const {title, expiry_date, "Vendor.vendor_id": vendor_id, "Category.category_id":category_id,"Manager.manager_id": manager_id} = req.body;
     const user = req.user;
     
     try {
@@ -51,11 +56,11 @@ module.exports.createLicense = async (req,res) => {
         const oneMonthFromNow = new Date(today.setMonth(today.getMonth() + 1));
         if(new Date(expiry_date) < oneMonthFromNow) status_id = 2;
         
-        let license = await License.create({title,expiry_date,vendor_id,category_id,status_id,user_id:user.user_id});
+        let license = await License.create({title,expiry_date,vendor_id,category_id,status_id,user_id:user.user_id,manager_id});
         
         license = await License.findOne({where:{license_id:license.license_id},
             attributes:{
-                exclude:['createdAt','updatedAt',"user_id","vendor_id","category_id","status_id"],
+                exclude:['createdAt','updatedAt',"user_id","vendor_id","category_id","status_id","manager_id"],
             },
             include:[
                 {
@@ -74,6 +79,10 @@ module.exports.createLicense = async (req,res) => {
                     model:Status,
                     attributes:["status_name"]
                 },
+                {
+                    model:Manager,
+                    attributes:["name","email"]
+                }
             ],
             raw:true,
             order:[["expiry_date","ASC"]]
@@ -84,7 +93,7 @@ module.exports.createLicense = async (req,res) => {
         await Log.create({
             user_id: user.user_id,
             license_id: license.license_id,
-            description: 'License created',
+            description: `License ${license.title} -- ${license["Vendor.vendor_name"]} created`,
             action_type: `Created by ${license["User.username"]}`,
         });
         return res.status(200).send({license});
@@ -109,7 +118,7 @@ module.exports.deleteLicense = async (req,res) => {
 }
 
 module.exports.editLicense = async (req,res) => {
-    const {license_id , title, expiry_date, "Vendor.vendor_id": vendor_id, "Category.category_id":category_id} = req.body;
+    const {license_id , title, expiry_date, "Vendor.vendor_id": vendor_id, "Category.category_id":category_id,"Manager.manager_id":manager_id} = req.body;
     const user_id = req.user.user_id;
     
     try {
@@ -128,12 +137,13 @@ module.exports.editLicense = async (req,res) => {
         license.vendor_id = vendor_id;
         license.category_id = category_id;
         license.status_id = status_id;
+        license.manager_id = manager_id;
         
         await license.save();
         
         license = await License.findOne({where:{license_id:license.license_id},
             attributes:{
-                exclude:['createdAt','updatedAt',"user_id","vendor_id","category_id","status_id"],
+                exclude:['createdAt','updatedAt',"user_id","vendor_id","category_id","status_id","manager_id"],
             },
             include:[
                 {
@@ -152,6 +162,10 @@ module.exports.editLicense = async (req,res) => {
                     model:Status,
                     attributes:["status_name"]
                 },
+                {
+                    model:Manager,
+                    attributes:["name","email"]
+                },
             ],
             raw:true,
             order:[["expiry_date","ASC"]]
@@ -160,7 +174,7 @@ module.exports.editLicense = async (req,res) => {
         await Log.create({
             user_id: user_id,
             license_id: license.license_id,
-            description: 'License updated',
+            description: `License ${license.title} -- ${license["Vendor.vendor_name"]} updated`,
             action_type: `Updated by ${license["User.username"]}`,
         });
         
@@ -179,15 +193,17 @@ module.exports.checkExpiringLicenses = async () => {
             }
         },
         include: [
-            { model: User, attributes: ['email', 'username'] }
+            { model: User, attributes: ['email', 'username'] },
+            { model: Manager, attributes:["email"] }
         ]
     });
-    
+    const superAdmin = await User.findOne({where:{isSuperAdmin:true}});
+
     licensesAboutToExpire.forEach(license => {
-        const { username: userName, email } = license.User.email;
+        // const { username: userName, email } = license.User.email;
         const subject = `License Expiry Notification: ${license.title}`;
         const message = `Dear All,\nThe license ${license.title} is about to expire on ${license.expiry_date}.\n\nPlease take the necessary actions.`;
-        sendNotificationEmail("mrehman0501305@gmail.com", subject, message);
+        sendNotificationEmail([license.Manager.email,superAdmin.email], subject, message);
     });
 
     const allLicenses = await License.findAll();

@@ -1,4 +1,4 @@
-const { Category, Vendor, License, Log} = require("../models/index.js");
+const { Category, Vendor, License, Log,Manager } = require("../models/index.js");
 const syslog = require("syslog-client");
 const { Op} = require("sequelize");
 // const client = syslog.createClient("localhost", { port: 514 }); // Create syslog client
@@ -7,10 +7,10 @@ module.exports.getLicenseopt = async(req,res) => {
     try {
         const categories = await Category.findAll();
         const vendors = await Vendor.findAll();
+        const managers = await Manager.findAll();
+        if(!categories || !vendors || !managers) return res.status(400).send({error:"Something Went Wrong"});
         
-        if(!categories || !vendors) return res.status(400).send({error:"Something Went Wrong"});
-        
-        return res.status(200).send({categories,vendors});
+        return res.status(200).send({categories,vendors, managers});
         
     } catch (error) {
         
@@ -130,6 +130,41 @@ module.exports.editCategory = async (req,res) => {
         return res.status(500).send({error:error.message});
     }
     
+}
+
+module.exports.createManager = async (req,res) => {
+    const { name, email, project} = req.body;
+    try {
+        if(!name || !email || !project) return res.status(400).send({error:"All fields are required"});
+
+        const manager = await Manager.create({name,email,project});
+
+        if(!manager) return res.status(400).send({error:"Manager not created"});
+
+        return res.status(200).send({manager});
+    } catch (error) {
+        return res.status(500).send({error:error.message});
+    }
+}
+
+module.exports.editManager = async (req,res) => {
+    const { manager_id, name, email, project } = req.body;
+
+    try {
+        let manager = await Manager.findOne({where:{manager_id}});
+
+        if(!manager) return res.status(404).send({error:"Manager not found"});
+        
+        manager.name = name;
+        manager.email = email;
+        manager.project = project;
+
+        await manager.save();
+
+        return res.status(200).send({manager});
+    } catch (error) {
+        return res.status(500).send({error:error.message});
+    }
 }
 
 // module.exports.sendLogsToSyslog = async function sendLogsToSyslog() {

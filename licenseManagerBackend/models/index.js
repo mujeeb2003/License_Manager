@@ -5,6 +5,7 @@ const Vendor = require('./vendorModel.js')
 const License = require('./licenseModel.js')
 const Category = require('./categoryModel.js')
 const Log = require('./logsModel.js')
+const Manager = require("./managerModel.js");
 
 const syncDatabase = async (force = false) => {
     try {
@@ -13,7 +14,7 @@ const syncDatabase = async (force = false) => {
         
         //   await db.query('SET FOREIGN_KEY_CHECKS = 0');
         
-        const models = [User,Status,Vendor,Category,License,Log];
+        const models = [User,Status,Vendor,Category,License,Log,Manager];
         for (const model of models) {
             await model.sync({ force });
         }
@@ -24,8 +25,8 @@ const syncDatabase = async (force = false) => {
         License.belongsTo(Vendor, { foreignKey: 'vendor_id' });
         License.belongsTo(Category, { foreignKey: 'category_id' });
         License.belongsTo(Status, { foreignKey: 'status_id' });
+        License.belongsTo(Manager, { foreignKey: 'manager_id' });
         Log.belongsTo(User, { foreignKey: 'user_id' });
-        Log.belongsTo(License, { foreignKey: 'user_id' });
         
         if (force) {
             await seedData();
@@ -49,6 +50,7 @@ const seedData = async () => {
     // console.log('Data seeded successfully.');
 };
 
+// seedData();
 // syncDatabase(true);
 syncDatabase(false);
 
@@ -59,5 +61,6 @@ module.exports = {
     License,
     Category,
     Log,
+    Manager,
     db
 }

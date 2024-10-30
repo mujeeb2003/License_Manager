@@ -19,10 +19,6 @@ const Log = db.define('Log', {
   license_id: {
     type: DataTypes.INTEGER,
     allowNull: false,
-    references: {
-      model: 'licenses',
-      key: 'license_id'
-    },
   },
   description: {
     type: DataTypes.STRING,

@@ -1,4 +1,4 @@
-const nodemailer = require('nodemailer');
+const nodemailer = require("nodemailer");
 require("dotenv").config();
 const { decryptPassword } = require("../utils/encryptPassword.js");
 
@@ -13,13 +13,15 @@ const transporter = nodemailer.createTransport({
 });
 
 const sendNotificationEmail = (email, subject, message) => {
+    console.log(email)
     const mailOptions = {
+        // Sender address
         from: process.env.SMTP_USER, // Sender address
-        to: email, 
+        to: email.join(", "), // List of recipients
         subject: subject, // Subject line
         text: message, // Plain text body
     };
-    
+
     transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
             return console.log(error);
