@@ -48,7 +48,8 @@ const seedData = async () => {
     
     // console.log('Data seeded successfully.');
 };
-// seedData();
+
+// syncDatabase(true);
 syncDatabase(false);
 
 module.exports = {
