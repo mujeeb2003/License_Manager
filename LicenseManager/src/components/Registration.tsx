@@ -26,9 +26,9 @@ function Registration() {
         e.preventDefault();
         try {
             const result = (await dispatch(userSignup({email:formValue.email,username:formValue.username,password:formValue.password}))).payload;
-            console.log(result);
+            // console.log(result);
             if(result.message){
-                console.log(result.message);
+                // console.log(result.message);
                 toggleloginmode();
                 setformValue({
                     email:"",
@@ -72,7 +72,7 @@ function Registration() {
                 <div className="overlay">
                     <h1>License Manager</h1>
                     <p>Welcome to License Manager, your one-stop solution for managing
-                    software licenses. Please login to continue.</p>
+                    software licenses.</p>
                 
                 </div>
             </div>

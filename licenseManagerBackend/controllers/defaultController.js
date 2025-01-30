@@ -137,6 +137,7 @@ module.exports.createManager = async (req,res) => {
     try {
         if(!name || !email || !project) return res.status(400).send({error:"All fields are required"});
 
+        console.log(name,email,project);
         const manager = await Manager.create({name,email,project});
 
         if(!manager) return res.status(400).send({error:"Manager not created"});

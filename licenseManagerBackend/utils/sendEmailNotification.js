@@ -19,7 +19,8 @@ const sendNotificationEmail = (email, subject, message) => {
         from: process.env.SMTP_USER, // Sender address
         to: email.join(", "), // List of recipients
         subject: subject, // Subject line
-        text: message, // Plain text body
+        html: message, // Plain text body
+        
     };
 
     transporter.sendMail(mailOptions, (error, info) => {

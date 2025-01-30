@@ -18,7 +18,6 @@ const initialState:userState = {
     error:""
 }
 const API_URI = import.meta.env.VITE_API_URL || "/api";
-
 export const userLogin = createAsyncThunk('user/userLogin', async (credentials: { email: string, password: string }, { rejectWithValue }) => {
     try {
         const res = await axios.post(`${API_URI}/user/login`, credentials);
@@ -58,7 +57,7 @@ export const getLoggedinUser = createAsyncThunk('user/getLoggedinUser', async (_
 export const logoutUser = createAsyncThunk('user/logoutUser',async (_undefined,{rejectWithValue})=>{
     try {
         const res = await axios.get(`${API_URI}/user/logoutUser`);
-        console.log("from redux",res);
+        // console.log("from redux",res);
         return res.data;
     } catch (err: any) {
         if (err.response && err.response.data) {
@@ -141,7 +140,7 @@ const userSlice = createSlice({
         })
         builder.addCase(userLogin.fulfilled,(state,{payload})=>{
             state.loading=false;
-            console.log(payload.user)
+            // console.log(payload.user)
             state.user=payload.user;
             state.isAdmin = payload.user.isAdmin;
             state.isSuperAdmin = payload.user.isSuperAdmin;
@@ -165,7 +164,7 @@ const userSlice = createSlice({
         })
         builder.addCase(getLoggedinUser.fulfilled,(state,{payload})=>{
             state.loading=false;
-            console.log(payload);
+            // console.log(payload);
             state.user=payload.user;
             state.isAdmin = payload.user.isAdmin;
             state.isSuperAdmin = payload.user.isSuperAdmin;

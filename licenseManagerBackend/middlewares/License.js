@@ -1,5 +1,5 @@
 const fs = require('fs');
-const crypto = require('crypto');
+const crypto = require('node:crypto');
 const { LocalStorage } = require('node-localstorage'); // Use node-localstorage
 
 // Set up local storage

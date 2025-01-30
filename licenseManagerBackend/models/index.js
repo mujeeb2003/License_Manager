@@ -14,7 +14,7 @@ const syncDatabase = async (force = false) => {
         
         //   await db.query('SET FOREIGN_KEY_CHECKS = 0');
         
-        const models = [User,Status,Vendor,Category,License,Log,Manager];
+        const models = [User,Status,Vendor,Category,Manager,License,Log];
         for (const model of models) {
             await model.sync({ force });
         }
@@ -28,7 +28,9 @@ const syncDatabase = async (force = false) => {
         License.belongsTo(Manager, { foreignKey: 'manager_id' });
         Log.belongsTo(User, { foreignKey: 'user_id' });
         
-        if (force) {
+        let categories = Category.findAll();
+        // console.log('Categories:', (await categories).length);
+        if (force || (await categories).length === 0) {
             await seedData();
         }
         

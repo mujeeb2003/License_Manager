@@ -35,7 +35,7 @@ This project is proprietary software developed by [Mujeeb Ur Rehman]. All rights
 
 No license is granted to any party for the use, modification, or distribution of this software without explicit written permission from the copyright holder.
 
-For inquiries regarding licensing or usage permissions, please contact [Your Contact Information].
+For inquiries regarding licensing or usage permissions, please contact [mrehman0501305@gmail.com].
 
 ## Support
 If you encounter any issues or have questions, please contact me on my linkedin profile [Mujeeb Ur Rehman](https://www.linkedin.com/in/mujeeb-tech/).

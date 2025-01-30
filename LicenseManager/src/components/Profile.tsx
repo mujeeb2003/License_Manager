@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Box, Button, Drawer, DrawerBody, DrawerFooter, DrawerHeader, DrawerOverlay, DrawerContent, DrawerCloseButton, Flex, Text, Input, VStack, HStack, useDisclosure, Avatar, SimpleGrid, useColorModeValue, IconButton, ChakraProps, chakra } from "@chakra-ui/react";
+import { Box, Button, Drawer, DrawerBody, DrawerFooter, DrawerHeader, DrawerOverlay, DrawerContent, DrawerCloseButton, Flex, Text, Input, VStack, HStack, useDisclosure, Avatar, SimpleGrid, useColorModeValue, IconButton, chakra } from "@chakra-ui/react";
 import { motion, AnimatePresence, isValidMotionProp } from "framer-motion";
 import { RootState, type AppDispatch } from "../types";
 import { useDispatch, useSelector } from "react-redux";
@@ -44,12 +44,12 @@ const ProfileCard: React.FC<ProfileCardProps> = ({ icon, title, value }) => {
   );
 };
 
-interface User {
-  username: string;
-  email: string;
-  isAdmin: boolean;
-  isDisable: boolean;
-}
+// interface User {
+//   username: string;
+//   email: string;
+//   isAdmin: boolean;
+//   isDisable: boolean;
+// }
 
 interface EditForm {
   username: string;
@@ -136,7 +136,7 @@ const ProfilePage: React.FC = () => {
                   placeholder="Enter new username"
                 />
               </Box>
-              <Box w="full">
+                <Box w="full">
                 <Text mb={1}>Password</Text>
                 <Input
                   name="password"
@@ -144,8 +144,9 @@ const ProfilePage: React.FC = () => {
                   value={editForm.password}
                   onChange={handleEditFormChange}
                   placeholder="Enter new password"
+                  minLength={8}
                 />
-              </Box>
+                </Box>
             </VStack>
           </DrawerBody>
 

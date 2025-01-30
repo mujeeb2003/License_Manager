@@ -15,7 +15,7 @@ encryptEnvPassword("SMTP_PASS");
 // Import the cron job (this will start the cron job when app starts)
 require("./cron/licenseCron");
 const PORT = process.env.PORT || 5000;
-const { running } = require("./licenseChecker-obfuscated.js");
+// const { running } = require("./licenseChecker-obfuscated.js");
 
 const db = require("./config/databaseConfig.js");
 
@@ -23,7 +23,7 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(cors());
-app.use(running);
+// app.use(running);
 
 app.use("/", router);
 app.use("/license", licenseRouter);

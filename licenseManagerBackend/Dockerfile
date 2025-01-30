@@ -10,7 +10,7 @@ RUN npm install
 
 COPY . . 
 
-# EXPOSE 3306 5000
+EXPOSE 5000 3306
 
 # Set the command to run your application
 CMD ["node", "app.js"]

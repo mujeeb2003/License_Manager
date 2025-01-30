@@ -243,7 +243,7 @@ function License() {
               </Tbody>
               <Tfoot>
                 <Tr>
-                  <Td colSpan={7}>
+                  <Td colSpan={9}>
                     <Flex justifyContent="space-between" alignItems="center">
                       <Button
                         size="sm"
