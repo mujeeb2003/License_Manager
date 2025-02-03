@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "start":"npm run dev --host 0.0.0.0",
+    "start": "npm run dev",
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
@@ -43,3 +43,6 @@
     "vite": "^5.4.1"
   }
 }
+
+
+

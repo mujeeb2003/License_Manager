@@ -1,6 +1,7 @@
 import {createAsyncThunk, createSlice} from "@reduxjs/toolkit";
 import type { userState } from "../../types";
-import axios from "axios";
+// import axios from "axios";
+import api from "../../utils/axiosUtil";
 
 const initialState:userState = {
     user:{
@@ -17,10 +18,10 @@ const initialState:userState = {
     loading:false,
     error:""
 }
-const API_URI = import.meta.env.VITE_API_URL || "/api";
+// const API_URI = import.meta.env.VITE_API_URL || "/api";
 export const userLogin = createAsyncThunk('user/userLogin', async (credentials: { email: string, password: string }, { rejectWithValue }) => {
     try {
-        const res = await axios.post(`${API_URI}/user/login`, credentials);
+        const res = await api.post(`/user/login`, credentials);
         return res.data;
     } catch (err: any) {
         if (err.response && err.response.data) {
@@ -32,7 +33,7 @@ export const userLogin = createAsyncThunk('user/userLogin', async (credentials: 
 
 export const userSignup = createAsyncThunk('user/userSignup', async (credentials: { email: string, password: string, username: string }, { rejectWithValue }) => {
     try {
-        const res = await axios.post(`${API_URI}/user/register`, credentials);
+        const res = await api.post(`/user/register`, credentials);
         return res.data;
     } catch (err: any) {
         if (err.response && err.response.data) {
@@ -44,7 +45,7 @@ export const userSignup = createAsyncThunk('user/userSignup', async (credentials
 
 export const getLoggedinUser = createAsyncThunk('user/getLoggedinUser', async (_undefined, { rejectWithValue }) => {
     try {
-        const res = await axios.get(`${API_URI}/user/getLoggedinUser`);
+        const res = await api.get(`/user/getLoggedinUser`);
         return res.data;
     } catch (err: any) {
         if (err.response && err.response.data) {
@@ -56,7 +57,7 @@ export const getLoggedinUser = createAsyncThunk('user/getLoggedinUser', async (_
 
 export const logoutUser = createAsyncThunk('user/logoutUser',async (_undefined,{rejectWithValue})=>{
     try {
-        const res = await axios.get(`${API_URI}/user/logoutUser`);
+        const res = await api.get(`/user/logoutUser`);
         // console.log("from redux",res);
         return res.data;
     } catch (err: any) {
@@ -71,7 +72,7 @@ export const logoutUser = createAsyncThunk('user/logoutUser',async (_undefined,{
 
 export const toggleDisable = createAsyncThunk('user/toggleDisable',async (credentials:{user_id:number},{rejectWithValue})=>{
     try {
-        const res = await axios.post(`${API_URI}/user/toggleDisable`,credentials);
+        const res = await api.post(`/user/toggleDisable`,credentials);
         return res.data;
     } catch (error:any) {
 
@@ -83,7 +84,7 @@ export const toggleDisable = createAsyncThunk('user/toggleDisable',async (creden
 
 export const toggleAdmin = createAsyncThunk('user/toggleAdmin',async (credentials:{user_id:number},{rejectWithValue})=>{
     try {
-        const res = await axios.post(`${API_URI}/user/toggleAdmin`,credentials);
+        const res = await api.post(`/user/toggleAdmin`,credentials);
         return res.data;
     } catch (error:any) {
 
@@ -95,7 +96,7 @@ export const toggleAdmin = createAsyncThunk('user/toggleAdmin',async (credential
 
 export const resetPassword = createAsyncThunk('user/resetPassword',async (credentials:{user_id:number,password:string},{rejectWithValue})=>{
     try {
-        const res = await axios.post(`${API_URI}/user/resetPassword`,credentials);
+        const res = await api.post(`/user/resetPassword`,credentials);
         return res.data;
     } catch (error:any) {
 
@@ -107,7 +108,7 @@ export const resetPassword = createAsyncThunk('user/resetPassword',async (creden
 
 export const getAllUsers = createAsyncThunk('user/getAllUsers',async (_undefined,{rejectWithValue})=>{
     try {
-        const res = await axios.get(`${API_URI}/user/getAllUsers`);
+        const res = await api.get(`/user/getAllUsers`);
         return res.data;
     } catch (error:any) {
         if(error.response && error.response.data) return rejectWithValue(error.response.data);
@@ -118,7 +119,7 @@ export const getAllUsers = createAsyncThunk('user/getAllUsers',async (_undefined
 
 export const updateUser = createAsyncThunk('user/updateUser',async (credentials:{user_id:number,password?:string,username?:string},{rejectWithValue})=>{
     try {
-        const res = await axios.post(`${API_URI}/user/updateUser`,credentials);
+        const res = await api.post(`/user/updateUser`,credentials);
         return res.data;
     } catch (error:any) {
 
@@ -178,6 +179,14 @@ const userSlice = createSlice({
         })
         builder.addCase(logoutUser.fulfilled,(state,{})=>{
             state.loading=false;
+            state.user = {
+                user_id:0,
+                email:'',
+                username:'',
+                isAdmin:false,
+                isSuperAdmin:false,
+                isDisable:false
+            };
 
         })
         builder.addCase(logoutUser.rejected,(state,{payload})=>{

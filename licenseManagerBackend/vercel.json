@@ -1,0 +1,20 @@
+{
+    "version": 2,
+    "builds": [
+        {
+            "src": "app.js",
+            "use": "@vercel/node",
+            "config": {
+                "buildCommand": "npm install pg",
+                "includeFiles": ["node_modules/**"]
+            }
+        }
+    ],
+    "routes": [
+        {
+            "src": "/(.*)",
+            "dest": "/app.js"
+        }
+    ],
+    "installCommand": "npm install"
+}

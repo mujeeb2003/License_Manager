@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import type { categoryForm, licenseForm, licenseState, vendorForm ,managerForm} from "../../types";
-import axios from "axios";
+// import axios from "axios";
+import api from "../../utils/axiosUtil";
 
 const initialState: licenseState = {
     licenses: [],
@@ -13,11 +14,10 @@ const initialState: licenseState = {
     error: "",
     loading: false
 };
-const API_URL = import.meta.env.VITE_API_URL || "/api";
 
 export const getLicenses = createAsyncThunk("license/getLicenses", async (_undefined, { rejectWithValue }) => {
     try {
-        const res = await axios.get(`${API_URL}/license/getLicenses`);
+        const res = await api.get(`/license/getLicenses`);
         return res.data;
     } catch (error: any) {
         if (error.response && error.response.data) return rejectWithValue(error.response.data);
@@ -28,7 +28,7 @@ export const getLicenses = createAsyncThunk("license/getLicenses", async (_undef
 
 export const getLicenseOpt = createAsyncThunk("license/getLicenseOpt", async (_undefined, { rejectWithValue }) => {
     try {
-        const res = await axios.get(`${API_URL}/getLicenseopt`);
+        const res = await api.get(`/getLicenseopt`);
         return res.data;
     } catch (error: any) {
         if (error.response && error.response.data) return rejectWithValue(error.response.data);
@@ -39,7 +39,7 @@ export const getLicenseOpt = createAsyncThunk("license/getLicenseOpt", async (_u
 
 export const createLicense = createAsyncThunk("license/createLicense", async (data: licenseForm, { rejectWithValue }) => {
     try {
-        const res = await axios.post(`${API_URL}/license/createLicense`, data);
+        const res = await api.post(`/license/createLicense`, data);
         return res.data;
     } catch (error: any) {
         if (error.response && error.response.data) return rejectWithValue(error.response.data);
@@ -50,7 +50,7 @@ export const createLicense = createAsyncThunk("license/createLicense", async (da
 
 export const createCategory = createAsyncThunk("license/createCategory", async (data: categoryForm, { rejectWithValue }) => {
     try {
-        const res = await axios.post(`${API_URL}/createCategory`, data);
+        const res = await api.post(`/createCategory`, data);
         return res.data;
     } catch (error: any) {
         if (error.response && error.response.data) return rejectWithValue(error.response.data);
@@ -61,7 +61,7 @@ export const createCategory = createAsyncThunk("license/createCategory", async (
 
 export const createVendor = createAsyncThunk("license/createVendor", async (data: vendorForm, { rejectWithValue }) => {
     try {
-        const res = await axios.post(`${API_URL}/createVendor`, data);
+        const res = await api.post(`/createVendor`, data);
         return res.data;
     } catch (error: any) {
         if (error.response && error.response.data) return rejectWithValue(error.response.data);
@@ -72,7 +72,7 @@ export const createVendor = createAsyncThunk("license/createVendor", async (data
 
 export const createManager = createAsyncThunk("license/createManager", async (data: managerForm, { rejectWithValue }) => {
     try {
-        const res = await axios.post(`${API_URL}/createManager`, data);
+        const res = await api.post(`/createManager`, data);
         return res.data;
     } catch (error: any) {
         if (error.response && error.response.data) return rejectWithValue(error.response.data);
@@ -83,7 +83,7 @@ export const createManager = createAsyncThunk("license/createManager", async (da
 
 export const deleteLicense = createAsyncThunk("license/deleteLicense", async (data: { license_id: number }, { rejectWithValue }) => {
     try {
-        const res = await axios.post(`${API_URL}/license/deleteLicense`, data);
+        const res = await api.post(`/license/deleteLicense`, data);
         return res.data;
     } catch (error: any) {
         if (error.response && error.response.data) return rejectWithValue(error.response.data);
@@ -94,7 +94,7 @@ export const deleteLicense = createAsyncThunk("license/deleteLicense", async (da
 
 export const deleteCategory = createAsyncThunk("license/deleteCategory", async (data: { category_id: number }, { rejectWithValue }) => {
     try {
-        const res = await axios.post(`${API_URL}/deleteCategory`, data);
+        const res = await api.post(`/deleteCategory`, data);
         return res.data;
     } catch (error: any) {
         if (error.response && error.response.data) return rejectWithValue(error.response.data);
@@ -105,7 +105,7 @@ export const deleteCategory = createAsyncThunk("license/deleteCategory", async (
 
 export const deleteVendor = createAsyncThunk("license/deleteVendor", async (data: { vendor_id: number }, { rejectWithValue }) => {
     try {
-        const res = await axios.post(`${API_URL}/deleteVendor`, data);
+        const res = await api.post(`/deleteVendor`, data);
         return res.data;
     } catch (error: any) {
         if (error.response && error.response.data) return rejectWithValue(error.response.data);
@@ -117,7 +117,7 @@ export const deleteVendor = createAsyncThunk("license/deleteVendor", async (data
 export const editLicense = createAsyncThunk("license/editLicense", async (data: licenseForm & { license_id: number }, { rejectWithValue }) => {
     console.log("License", data);
     try {
-        const res = await axios.post(`${API_URL}/license/editLicense`, data);
+        const res = await api.post(`/license/editLicense`, data);
         return res.data;
     } catch (error: any) {
         if (error.response && error.response.data) return rejectWithValue(error.response.data);
@@ -129,7 +129,7 @@ export const editLicense = createAsyncThunk("license/editLicense", async (data: 
 export const editCategory = createAsyncThunk("license/editCategory", async (data: categoryForm & { category_id: number }, { rejectWithValue }) => {
     console.log("Category", data);
     try {
-        const res = await axios.post(`${API_URL}/editCategory`, data);
+        const res = await api.post(`/editCategory`, data);
         return res.data;
     } catch (error: any) {
         if (error.response && error.response.data) return rejectWithValue(error.response.data);
@@ -141,7 +141,7 @@ export const editCategory = createAsyncThunk("license/editCategory", async (data
 export const editVendor = createAsyncThunk("license/editVendor", async (data: vendorForm & { vendor_id: number }, { rejectWithValue }) => {
     console.log("Vendor", data);
     try {
-        const res = await axios.post(`${API_URL}/editVendor`, data);
+        const res = await api.post(`/editVendor`, data);
         return res.data;
     } catch (error: any) {
         if (error.response && error.response.data) return rejectWithValue(error.response.data);
@@ -153,7 +153,7 @@ export const editVendor = createAsyncThunk("license/editVendor", async (data: ve
 export const editManager = createAsyncThunk("license/editManager", async (data: managerForm & { manager_id: number }, { rejectWithValue }) => {
     console.log("Manager", data);
     try {
-        const res = await axios.post(`${API_URL}/editManager`, data);
+        const res = await api.post(`/editManager`, data);
         return res.data;
     } catch (error: any) {
         if (error.response && error.response.data) return rejectWithValue(error.response.data);
@@ -164,7 +164,7 @@ export const editManager = createAsyncThunk("license/editManager", async (data: 
 
 export const getLicenseNot = createAsyncThunk("license/getLicenseNot", async (_undefined, { rejectWithValue }) => {
     try {
-        const res = await axios.get(`${API_URL}/license/getLicenseNot`);
+        const res = await api.get(`/license/getLicenseNot`);
         return res.data;
     } catch (error: any) {
         if (error.response && error.response.data) return rejectWithValue(error.response.data);

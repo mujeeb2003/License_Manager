@@ -1,22 +1,30 @@
 const {Sequelize} = require("sequelize");
 require("dotenv").config();
-const { decryptPassword } = require("../utils/encryptPassword.js");
+// const { decryptPassword } = require("../utils/encryptPassword.js");
 
-const dbConfig = {
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    pass: decryptPassword(process.env.DB_CHECK),
-    port: process.env.DB_PORT
-};
+// const dbConfig = {
+//     host: process.env.DB_HOST,
+//     user: process.env.DB_USER,
+//     pass: decryptPassword(process.env.DB_CHECK),
+//     port: process.env.DB_PORT
+// };
 
-const db = new Sequelize(process.env.DB_NAME,dbConfig.user,dbConfig.pass,{
-    host:dbConfig.host,
-    dialect:"mysql",
-    port:dbConfig.port,
-    define:{
-        timestamps:true
+const db = new Sequelize(process.env.DATABASE_URL, {
+    dialect: 'postgres',
+    dialectOptions: {
+        ssl: true
     },
-    logging:false
+    pool: {
+        max: 2,
+        min: 0,
+        idle: 0,
+        acquire: 3000,
+        evict: 30000,
+    },
+    define: {
+        timestamps: true
+    },
+    logging: console.log // Enable logging temporarily for debugging
 });
 
 (async () => {

@@ -59,7 +59,21 @@ module.exports.login = async (req, res) => {
             return res.status(400).send({ error: "User is Disabled" });
 
         const token = generateToken(user);
-        res.cookie("token", token, { httpOnly: true, secure: false });
+
+        res.cookie("token", token, {
+            httpOnly: true,
+            secure: true,
+            sameSite: "none",
+            maxAge: 24 * 60 * 60 * 1000,
+            path: "/",
+        });
+
+        // Add CORS headers explicitly in the response
+        res.header("Access-Control-Allow-Credentials", "true");
+        res.header(
+            "Access-Control-Allow-Origin",
+            "https://license-manager-cyan.vercel.app"
+        );
 
         res.status(200).send({
             user: {
@@ -120,8 +134,16 @@ module.exports.userDisable = async (req, res) => {
 
 module.exports.logoutUser = async (req, res) => {
     try {
-        const user = req.user;
-        res.clearCookie("token");
+        res.clearCookie("token", {
+            httpOnly: true,
+            secure: true,
+            sameSite: "none",
+            path: "/",
+        });
+
+        // Set explicit headers to ensure the cookie is cleared
+        res.header("Access-Control-Allow-Credentials", "true");
+
         return res.status(200).send({ message: "Successfully Logged Out" });
     } catch (error) {
         return res.status(500).send({ error: error.message });

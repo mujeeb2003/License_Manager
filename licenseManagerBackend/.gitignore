@@ -1,3 +1,4 @@
 node_modules
 .env
 middlewares/License.js
+.vercel

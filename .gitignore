@@ -1,5 +1,5 @@
 licenseManagerBackend/node_modules
-licenseManagerBackend/.env
+./licenseManagerBackend/.env
 licenseManager/node_modules
 # Logs
 logs
@@ -28,4 +28,4 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
- licensePactices
+.env
