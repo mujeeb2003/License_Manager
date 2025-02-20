@@ -1,11 +1,12 @@
 import axios from 'axios';
 
 const api = axios.create({
-    baseURL: 'https://licapi.vercel.app',
+    baseURL: import.meta.env.VITE_API_URL || '/api',
     withCredentials: true,
     headers: {
         'Content-Type': 'application/json'
-    }
+    },
+    maxRedirects: 0 // Prevent automatic redirects
 });
 
 // Add an interceptor to log requests

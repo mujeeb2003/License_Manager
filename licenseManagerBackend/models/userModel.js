@@ -32,6 +32,15 @@ const User = db.define('User', {
     isDisable : {
         type: DataTypes.BOOLEAN,
         defaultValue:false
+    },
+    domain_id: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        defaultValue: 1,
+        references: {
+            model: 'domains',
+            key: 'domain_id'
+        }
     }
 }, {
     tableName: 'users'

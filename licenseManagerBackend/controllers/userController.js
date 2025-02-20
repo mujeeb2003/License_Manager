@@ -1,10 +1,11 @@
-const { User } = require("../models/index.js");
+const { User, Domain } = require("../models/index.js");
 const { generateToken } = require("../utils/generateToken.js");
 const bcrypt = require("bcryptjs");
 
 module.exports.register = async (req, res) => {
-    const { username, email, password } = req.body;
+    let { username, email, password } = req.body;
     try {
+        email = email.toLowerCase();
         let userlength = await User.findAll();
 
         let user = await User.findOne({ where: { email } });
@@ -40,12 +41,18 @@ module.exports.register = async (req, res) => {
 };
 
 module.exports.login = async (req, res) => {
-    const { email, password } = req.body;
+    let { email, password } = req.body;
+    email = email.toLowerCase();
     try {
-        let user = await User.findOne({ where: { email } });
+        let user = await User.findOne({
+            where: { email }
+        });
 
+        // console.log(JSON.stringify(user));
         if (!user) {
-            return res.status(404).send({ error: "User not found" });
+            return res
+                .status(404)
+                .send({ error: "Email or password is incorrect" });
         }
 
         const match = await bcrypt.compare(password, user.password);
@@ -66,13 +73,18 @@ module.exports.login = async (req, res) => {
             sameSite: "none",
             maxAge: 24 * 60 * 60 * 1000,
             path: "/",
+            domain:
+                process.env.NODE_ENV === "production"
+                    ? ".vercel.app"
+                    : "localhost",
         });
 
-        // Add CORS headers explicitly in the response
-        res.header("Access-Control-Allow-Credentials", "true");
+        // Single origin header instead of multiple
         res.header(
             "Access-Control-Allow-Origin",
-            "https://license-manager-cyan.vercel.app"
+            process.env.NODE_ENV === "production"
+                ? "https://license-manager-cyan.vercel.app"
+                : "http://localhost:5173"
         );
 
         res.status(200).send({
@@ -82,6 +94,7 @@ module.exports.login = async (req, res) => {
                 user_id: user.user_id,
                 isAdmin: user.isAdmin,
                 isSuperAdmin: user.isSuperAdmin,
+                domain_id: user.domain_id
             },
             message: "login successfull",
         });
@@ -139,10 +152,19 @@ module.exports.logoutUser = async (req, res) => {
             secure: true,
             sameSite: "none",
             path: "/",
+            domain:
+                process.env.NODE_ENV === "production"
+                    ? ".vercel.app"
+                    : "localhost",
         });
 
-        // Set explicit headers to ensure the cookie is cleared
-        res.header("Access-Control-Allow-Credentials", "true");
+        // Single origin header
+        res.header(
+            "Access-Control-Allow-Origin",
+            process.env.NODE_ENV === "production"
+                ? "https://license-manager-cyan.vercel.app"
+                : "http://localhost:5173"
+        );
 
         return res.status(200).send({ message: "Successfully Logged Out" });
     } catch (error) {

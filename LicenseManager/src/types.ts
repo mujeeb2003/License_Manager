@@ -15,7 +15,8 @@ export type User = {
     email:string
     isDisable:boolean,
     isAdmin:boolean,
-    isSuperAdmin:boolean
+    isSuperAdmin:boolean,
+    domain_id: number
 }
 export type UserFilters = {
     name: string;
@@ -30,6 +31,7 @@ export type licenseState = {
     vendors:Vendor[],
     categories:Category[],
     managers:Manager[],
+    domains: Domain[],
     error:string,
     loading:boolean,
     licExpInWeek:License[],
@@ -60,6 +62,7 @@ export type Status = {
     status_id:number,
     status_name:string
 }
+
 export type Vendor = {
     vendor_id:number,
     vendor_name:string,
@@ -79,6 +82,12 @@ export type Manager = {
     name:string,
     email:string,
     project:string
+}
+
+export type Domain = {
+    domain_id: number,
+    domain_name: string,
+    parent_domain_id: number
 }
 
 export type licenseForm = {
@@ -107,10 +116,17 @@ export type managerForm = {
     project: string;
 }
 
+export type domainForm = {
+    domain_name: string;
+    parent_domain_id: number;
+}
+
 export type DialogProps = {
     license_id?:number
     category_id?:number
     vendor_id?:number
+    domain_id?:number
+    isRound?:boolean
 }
 
 

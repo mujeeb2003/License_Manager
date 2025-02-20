@@ -9,6 +9,7 @@ const key = crypto.createHash('sha256').update(process.env.ENCRYPTION_KEY).diges
 const iv = crypto.randomBytes(16);
 
 function encryptPassword(password) {
+    console.log('Encrypting password...');
     let cipher = crypto.createCipheriv(algorithm, key, iv);
     let encrypted = cipher.update(password, 'utf8', 'hex');
     encrypted += cipher.final('hex');
@@ -42,6 +43,7 @@ function saveEncryptedPasswordToEnv(variableName, encryptedPassword) {
 }
 
 function encryptEnvPassword(variableName) {
+    console.log(`Encrypting ${variableName}...`);
     const password = process.env[variableName];
     if (!isEncrypted(password)) {
         const encryptedPassword = encryptPassword(password);

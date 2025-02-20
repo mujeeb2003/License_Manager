@@ -4,11 +4,13 @@ import { Link, useLocation} from 'react-router-dom';
 import { AppDispatch, type RootState } from '../types';
 import { logoutUser } from '../redux/user/userSlice';
 import { FaUser } from "react-icons/fa";
+
 function Navbar() {
   const location = useLocation();
   const isActive = (path:string) => location.pathname === path;
   const dispatch = useDispatch<AppDispatch>();
   const { isSuperAdmin,isAdmin } = useSelector((state:RootState)=>state.user);
+
   const handleLogout = async () => {
     const res = await dispatch(logoutUser());
     if(res.payload.message){
@@ -31,6 +33,7 @@ e
         <Link to="/home/category"  id={isActive('/home/category') ? 'isactive' : ''}>Category</Link>
         {isSuperAdmin &&<Link to="/home/userManagement"  id={isActive('/home/userManagement') ? 'isactive' : ''}>User Management</Link>}
         {isAdmin &&<Link to="/home/productManager"  id={isActive('/home/productManager') ? 'isactive' : ''}>Managers</Link>}
+        {isAdmin &&<Link to="/home/domains"  id={isActive('/home/domains') ? 'isactive' : ''}>Domains</Link>}
       </div>
 
       <div className="right-section">

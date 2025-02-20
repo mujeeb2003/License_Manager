@@ -56,6 +56,14 @@ const License = db.define('License', {
             key: 'status_id'
         },
     },
+    domain_id: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+            model: 'domains',
+            key: 'domain_id'
+        }
+    }
 }, {
     tableName: 'licenses'
 });

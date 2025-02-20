@@ -85,7 +85,7 @@ function Registration() {
                     <div className="inputs">
                         <input type="email" required placeholder="email" name='email' id='email' value={formValue.email} onChange={(e)=>handleChange(e)}/>
                         <br />
-                        <input type="password" minLength={8} required placeholder="password" name='password' id='password' value={formValue.password}  onChange={(e)=>handleChange(e)}/>
+                        <input type="password" required placeholder="password" name='password' id='password' value={formValue.password}  onChange={(e)=>handleChange(e)}/>
                     </div>
                     
                     <br /><br />

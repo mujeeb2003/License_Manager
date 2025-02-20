@@ -12,6 +12,7 @@ const { sendNotificationEmail } = require("../utils/sendEmailNotification.js");
 
 module.exports.getLicenses = async (req, res) => {
     try {
+        
         const licenses = await License.findAll({
             attributes: {
                 exclude: [
@@ -335,39 +336,40 @@ module.exports.getLicExpiry = async (req, res) => {
     try {
         const licExpInWeek = await License.findAll({
             where: {
-                expiry_date: {
-                    [Op.lte]: new Date(
-                        new Date().setDate(new Date().getDate() + 7)
-                    ),
-                },
+            expiry_date: {
+                [Op.gt]: new Date(), // Greater than today
+                [Op.lte]: new Date(
+                new Date().setDate(new Date().getDate() + 7)
+                ), // Less than or equal to 7 days from now
+            },
             },
             attributes: {
-                exclude: [
-                    "createdAt",
-                    "updatedAt",
-                    "user_id",
-                    "vendor_id",
-                    "category_id",
-                    "status_id",
-                ],
+            exclude: [
+                "createdAt",
+                "updatedAt",
+                "user_id",
+                "vendor_id",
+                "category_id",
+                "status_id",
+            ],
             },
             include: [
-                {
-                    model: User,
-                    attributes: ["username"],
-                },
-                {
-                    model: Vendor,
-                    attributes: ["vendor_name"],
-                },
-                {
-                    model: Category,
-                    attributes: ["category_name"],
-                },
-                {
-                    model: Status,
-                    attributes: ["status_name"],
-                },
+            {
+                model: User,
+                attributes: ["username"],
+            },
+            {
+                model: Vendor,
+                attributes: ["vendor_name"],
+            },
+            {
+                model: Category,
+                attributes: ["category_name"],
+            },
+            {
+                model: Status,
+                attributes: ["status_name"],
+            },
             ],
             raw: true,
         });

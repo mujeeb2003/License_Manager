@@ -34,3 +34,4 @@ const Vendor = db.define('Vendor', {
 });
 
 module.exports = Vendor;
+

@@ -241,7 +241,7 @@ const UserManagement: React.FC = () => {
                             <Flex
                                 direction={{ base: "column", md: "row" }}
                                 gap={4}
-                                alignItems="center"
+                                alignItems="right"
                             >
                                 <Box flex={1}>
                                     <Input
@@ -249,6 +249,8 @@ const UserManagement: React.FC = () => {
                                         name="name"
                                         value={filters.name}
                                         onChange={handleFilterChange}
+                                        size={"sm"}
+                                        rounded={"md"}
                                     />
                                 </Box>
                                 <Box flex={1}>
@@ -257,6 +259,8 @@ const UserManagement: React.FC = () => {
                                         name="email"
                                         value={filters.email}
                                         onChange={handleFilterChange}
+                                        size={"sm"}
+                                        rounded={"md"}
                                     />
                                 </Box>
                                 <Box flex={1}>
@@ -265,6 +269,8 @@ const UserManagement: React.FC = () => {
                                         name="isAdmin"
                                         value={filters.isAdmin}
                                         onChange={handleFilterChange}
+                                        size={"sm"}
+                                        rounded={"md"}
                                     >
                                         <option value="true">Admin</option>
                                         <option value="false">User</option>
@@ -277,6 +283,8 @@ const UserManagement: React.FC = () => {
                                         name="isDisable"
                                         value={filters.isDisable}
                                         onChange={handleFilterChange}
+                                        size={"sm"}
+                                        rounded={"md"}
                                     >
                                         <option value="false">Active</option>
                                         <option value="true">Disabled</option>

@@ -3,10 +3,10 @@ import React from "react"
 import { AppDispatch, DialogProps, type RootState } from "../../types"
 import { DeleteIcon } from "@chakra-ui/icons";
 import { useDispatch, useSelector } from "react-redux";
-import { deleteCategory, deleteLicense, deleteVendor } from "../../redux/license/licenseSlice";
+import { deleteCategory, deleteDomain, deleteLicense, deleteVendor } from "../../redux/license/licenseSlice";
 import { toast } from "react-toastify";
 
-export default function AlertDialogS({license_id,vendor_id,category_id}:DialogProps) {
+export default function AlertDialogS({license_id,vendor_id,category_id,domain_id, isRound}:DialogProps) {
     const { isOpen, onOpen, onClose } = useDisclosure()
     const { isSuperAdmin } = useSelector((state:RootState)=>state.user);
     const cancelRef = React.useRef<HTMLButtonElement>(null);
@@ -46,6 +46,16 @@ export default function AlertDialogS({license_id,vendor_id,category_id}:DialogPr
             }
         })
       }
+      if(domain_id){
+        dispatch(deleteDomain({domain_id:domain_id})).then((res)=>{
+            if(res.payload.message){
+                return toast.success(res.payload.message);
+            }
+            if(res.payload.error){
+              return toast.error(res.payload.error);
+            }
+        })
+      }
       onClose();
     }
 
@@ -53,7 +63,8 @@ export default function AlertDialogS({license_id,vendor_id,category_id}:DialogPr
       <>
         <IconButton
             mr={2}
-            isRound
+            isRound = {isRound ? false : true}
+            size={isRound ? "sm" : "md"}
             variant="solid"
             colorScheme="red"
             icon={<DeleteIcon />}
@@ -69,7 +80,7 @@ export default function AlertDialogS({license_id,vendor_id,category_id}:DialogPr
           <AlertDialogOverlay>
             <AlertDialogContent>
               <AlertDialogHeader fontSize='lg' fontWeight='bold'>
-                Delete {license_id ? "license" : category_id ? "category" : vendor_id ? "vendor" : ""}
+                Delete {license_id ? "license" : category_id ? "category" : vendor_id ? "vendor" : domain_id ? "domain" : ""}
               </AlertDialogHeader>
   
               <AlertDialogBody>
