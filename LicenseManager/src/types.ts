@@ -6,7 +6,7 @@ export type userState = {
     isAdmin:boolean,
     isSuperAdmin:boolean,
     error:string,
-    loading:boolean
+    loading:boolean,
 }
 
 export type User = {
@@ -16,13 +16,16 @@ export type User = {
     isDisable:boolean,
     isAdmin:boolean,
     isSuperAdmin:boolean,
-    domain_id: number
+    domain_id: number,
+    "Domain.domain_name"?: string
 }
+
 export type UserFilters = {
     name: string;
     email: string;
     isAdmin: string; 
     isDisable: string; 
+    "Domain.domain_name":string;
 };
 
 export type licenseState = {
@@ -48,6 +51,7 @@ export type License = {
     "Status.status_name":string
     "Manager.name":string
     "Manager.email":string
+    "Domain.domain_name": string
 }
 
 export type Filters = {
@@ -56,6 +60,7 @@ export type Filters = {
     "Vendor.vendor_name": string;
     "Category.category_name": string;
     "Status.status_name":string
+    "Domain.domain_name": string;
 };
 
 export type Status = {
@@ -70,6 +75,7 @@ export type Vendor = {
     vendor_representative:string,
     vendor_rep_phone:string,
     vendor_rep_email:string,
+    Domains: Domain[];
 }
 
 export type Category = {
@@ -78,16 +84,10 @@ export type Category = {
 }
 
 export type Manager = {
-    manager_id:number,
-    name:string,
-    email:string,
-    project:string
-}
-
-export type Domain = {
-    domain_id: number,
-    domain_name: string,
-    parent_domain_id: number
+    manager_id: number;
+    name: string;
+    email: string;
+    Domains: Domain[];
 }
 
 export type licenseForm = {
@@ -95,7 +95,8 @@ export type licenseForm = {
     expiry_date: Date | null,
     "Vendor.vendor_id": number,
     "Category.category_id": number,
-    "Manager.manager_id": number
+    "Manager.manager_id": number,
+    "Domain.domain_id": number
 }
 
 export type categoryForm = {
@@ -108,12 +109,19 @@ export type vendorForm = {
     vendor_representative:string,
     vendor_rep_phone:string,
     vendor_rep_email:string,
+    domain_ids:number[]
 }
 
 export type managerForm = {
     name: string;
     email: string;
-    project: string;
+    domain_ids: number[];
+}
+
+export type Domain = {
+    domain_id: number,
+    domain_name: string,
+    parent_domain_id: number
 }
 
 export type domainForm = {

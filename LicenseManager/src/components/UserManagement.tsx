@@ -1,4 +1,3 @@
-// UserManagement.tsx
 import React, { useEffect, useState } from "react";
 import {
     Table,
@@ -32,6 +31,8 @@ import {
     ModalCloseButton,
     VStack,
     Text,
+    HStack,
+    useColorModeValue,
 } from "@chakra-ui/react";
 import {
     FaUserLock,
@@ -46,6 +47,7 @@ import {
     toggleDisable,
     toggleAdmin,
     resetPassword,
+    assignDomain,
 } from "../redux/user/userSlice";
 import { AppDispatch, RootState, User, UserFilters } from "../types";
 import { ToastContainer, toast } from "react-toastify";
@@ -53,6 +55,7 @@ import { ToastContainer, toast } from "react-toastify";
 const UserManagement: React.FC = () => {
     const dispatch = useDispatch<AppDispatch>();
     const { users, user } = useSelector((state: RootState) => state.user);
+    const { domains } = useSelector((state: RootState) => state.license);
 
     const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
     const [sortField, setSortField] = useState<keyof User>("username");
@@ -61,11 +64,11 @@ const UserManagement: React.FC = () => {
         email: "",
         isAdmin: "",
         isDisable: "",
+        "Domain.domain_name": "",
     });
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 5;
 
-    // Modal for resetting password
     const {
         isOpen: isResetModalOpen,
         onOpen: onResetModalOpen,
@@ -74,11 +77,16 @@ const UserManagement: React.FC = () => {
     const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
     const [newPassword, setNewPassword] = useState<string>("");
 
+    const bgColor = useColorModeValue("white", "gray.800");
+    const headerColor = useColorModeValue("gray.700", "white");
+    const subHeaderColor = useColorModeValue("gray.500", "gray.400");
+    const tableHeaderBg = useColorModeValue("gray.50", "gray.900");
+    const tableRowHoverBg = useColorModeValue("gray.100", "gray.700");
+
     useEffect(() => {
         dispatch(getAllUsers());
     }, [dispatch]);
 
-    // Handle sorting
     const handleSort = (field: keyof User) => {
         const direction =
             sortField === field && sortDirection === "asc" ? "desc" : "asc";
@@ -86,30 +94,41 @@ const UserManagement: React.FC = () => {
         setSortField(field);
     };
 
-    // Handle filter changes
     const handleFilterChange = (
         e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
     ) => {
         const { name, value } = e.target;
         setFilters((prev) => ({ ...prev, [name]: value }));
-        setCurrentPage(1); // Reset to page 1 after filtering
+        setCurrentPage(1);
     };
 
-    // Clear all filters
     const handleFilterClear = () => {
         setFilters({
             name: "",
             email: "",
             isAdmin: "",
             isDisable: "",
+            "Domain.domain_name": "",
         });
         setCurrentPage(1);
     };
 
-    // Filter data
     const filteredData = users.filter((user: User) =>
         Object.keys(filters).every((key) => {
             const filterKey = key as keyof UserFilters;
+            if (filterKey === "name") {
+                return user.username
+                    .toLowerCase()
+                    .includes(filters.name.toLowerCase());
+            }
+            if (filterKey === "Domain.domain_name") {
+                if (filters["Domain.domain_name"].length === 0) {
+                    return true;
+                }
+                return user["Domain.domain_name"]
+                    ?.toLowerCase()
+                    .includes(filters["Domain.domain_name"].toLowerCase());
+            }
             const userValue =
                 (user as any)[filterKey]?.toString().toLowerCase() || "";
             return filters[filterKey]
@@ -118,22 +137,21 @@ const UserManagement: React.FC = () => {
         })
     );
 
-    // Sort data
     const sortedData = [...filteredData].sort((a, b) => {
         const aValue = a[sortField];
         const bValue = b[sortField];
-        if (aValue < bValue) return sortDirection === "asc" ? -1 : 1;
-        if (aValue > bValue) return sortDirection === "asc" ? 1 : -1;
+        if (aValue && bValue) {
+            if (aValue < bValue) return sortDirection === "asc" ? -1 : 1;
+            if (aValue > bValue) return sortDirection === "asc" ? 1 : -1;
+        }
         return 0;
     });
 
-    // Pagination logic
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
     const currentData = sortedData.slice(indexOfFirstItem, indexOfLastItem);
     const totalPages = Math.ceil(sortedData.length / itemsPerPage);
 
-    // Handle page change
     const handlePageChange = (page: number) => {
         if (page >= 1 && page <= totalPages) {
             setCurrentPage(page);
@@ -153,8 +171,14 @@ const UserManagement: React.FC = () => {
                         user_id: selectedUserId,
                         password: newPassword,
                     })
-                ).unwrap();
-                toast.success("Password reset successfully");
+                ).then((res) => {
+                    if (res.payload.user) {
+                        toast.success("User password reset successfully");
+                    }
+                    if (res.payload.error) {
+                        toast.error(res.payload.error);
+                    }
+                });
             } catch (err: any) {
                 toast.error(err.error || "Failed to reset password");
             }
@@ -163,71 +187,94 @@ const UserManagement: React.FC = () => {
         }
     };
 
-    // Handle toggle disable/enable
     const handleToggleDisable = async (user_id: number) => {
         try {
             if (user_id === user.user_id)
                 return toast.warning("Super admin cannot be disabled");
-
-            await dispatch(toggleDisable({ user_id })).unwrap();
-            toast.success("User status updated successfully");
+            await dispatch(toggleDisable({ user_id })).then((res) => {
+                if (res.payload.user) {
+                    toast.success("User status updated successfully");
+                }
+                if (res.payload.error) {
+                    toast.error(res.payload.error);
+                }
+            });
         } catch (err: any) {
             toast.error(err.error || "Failed to update user status");
         }
     };
 
-    // Handle toggle admin/user
     const handleToggleAdmin = async (user_id: number) => {
         try {
             if (user_id === user.user_id)
                 return toast.warning("The Super Admin cannot be demoted");
-
             if (
-                users.filter((user) => user.isAdmin === true).length == 1 &&
-                users.filter((user) => user.user_id == user_id)[0].isAdmin ===
-                    true
+                users.filter((user) => user.isAdmin === true).length === 1 &&
+                users.find((user) => user.user_id === user_id)?.isAdmin === true
             ) {
                 return toast.warning("The last admin cannot be demoted");
             }
-            await dispatch(toggleAdmin({ user_id })).unwrap();
-            toast.success("User role updated successfully");
+            await dispatch(toggleAdmin({ user_id })).then((res) => {
+                if (res.payload.user) {
+                    toast.success("User role updated successfully");
+                }
+                if (res.payload.error) {
+                    toast.error(res.payload.error);
+                }
+            });
         } catch (err: any) {
             toast.error(err.error || "Failed to update user role");
         }
     };
 
+    const handleAssignDomain = async (user_id: number, domain_id: number) => {
+        try {
+            await dispatch(assignDomain({ user_id, domain_id })).then((res) => {
+                console.log(res);
+                if (res.payload.user) {
+                    toast.success("User Assigned Domain successfully");
+                }
+                if (res.payload.error) {
+                    toast.error(res.payload.error);
+                }
+            });
+        } catch (err: any) {
+            toast.error(err.error || "Failed to update user domain");
+        }
+    };
+
     return (
-        <>
+        <Box p={6} bg={bgColor} borderRadius="lg">
             <ToastContainer autoClose={3000} theme="colored" />
-            <Box p={5}>
-                {/* Header */}
+            <VStack spacing={6} align="stretch">
                 <Flex
                     justifyContent="space-between"
                     alignItems="center"
-                    mb={5}
                     direction={{ base: "column", md: "row" }}
                 >
                     <Box>
-                        <Text fontSize="2xl" fontWeight="bold" color="gray.700">
+                        <Text
+                            fontSize="2xl"
+                            fontWeight="bold"
+                            color={headerColor}
+                        >
                             User Management
                         </Text>
-                        <Text color="gray.500">
+                        <Text color={subHeaderColor}>
                             Manage all users in the system
                         </Text>
                     </Box>
-                    <Flex mt={{ base: 4, md: 0 }} gap={4} alignItems="center">
-                        <Button
-                            colorScheme="red"
-                            size={"sm"}
-                            onClick={handleFilterClear}
-                        >
-                            Clear Filters
-                        </Button>
-                    </Flex>
+                    <Button
+                        colorScheme="red"
+                        size="sm"
+                        onClick={handleFilterClear}
+                        mt={{ base: 4, md: 0 }}
+                    >
+                        Clear Filters
+                    </Button>
                 </Flex>
 
-                {/* Filters Accordion */}
-                <Accordion allowToggle mb={5}>
+                <Accordion allowToggle>
                     <AccordionItem>
                         <h2>
                             <AccordionButton>
@@ -241,102 +288,99 @@ const UserManagement: React.FC = () => {
                             <Flex
                                 direction={{ base: "column", md: "row" }}
                                 gap={4}
-                                alignItems="right"
+                                alignItems="center"
                             >
-                                <Box flex={1}>
-                                    <Input
-                                        placeholder="Filter by Name"
-                                        name="name"
-                                        value={filters.name}
-                                        onChange={handleFilterChange}
-                                        size={"sm"}
-                                        rounded={"md"}
-                                    />
-                                </Box>
-                                <Box flex={1}>
-                                    <Input
-                                        placeholder="Filter by Email"
-                                        name="email"
-                                        value={filters.email}
-                                        onChange={handleFilterChange}
-                                        size={"sm"}
-                                        rounded={"md"}
-                                    />
-                                </Box>
-                                <Box flex={1}>
-                                    <Select
-                                        placeholder="Filter by Role"
-                                        name="isAdmin"
-                                        value={filters.isAdmin}
-                                        onChange={handleFilterChange}
-                                        size={"sm"}
-                                        rounded={"md"}
-                                    >
-                                        <option value="true">Admin</option>
-                                        <option value="false">User</option>
-                                    </Select>
-                                </Box>
-
-                                <Box flex={1}>
-                                    <Select
-                                        placeholder="Filter by Status"
-                                        name="isDisable"
-                                        value={filters.isDisable}
-                                        onChange={handleFilterChange}
-                                        size={"sm"}
-                                        rounded={"md"}
-                                    >
-                                        <option value="false">Active</option>
-                                        <option value="true">Disabled</option>
-                                    </Select>
-                                </Box>
+                                <Input
+                                    placeholder="Filter by Name"
+                                    name="name"
+                                    value={filters.name}
+                                    onChange={handleFilterChange}
+                                    size="sm"
+                                    rounded="lg"
+                                />
+                                <Input
+                                    placeholder="Filter by Email"
+                                    name="email"
+                                    value={filters.email}
+                                    onChange={handleFilterChange}
+                                    size="sm"
+                                    rounded="lg"
+                                />
+                                <Select
+                                    placeholder="Filter by Role"
+                                    name="isAdmin"
+                                    value={filters.isAdmin}
+                                    onChange={handleFilterChange}
+                                    size="sm"
+                                    rounded="lg"
+                                >
+                                    <option value="1">Admin</option>
+                                    <option value="0">User</option>
+                                </Select>
+                                <Select
+                                    placeholder="Filter by Status"
+                                    name="isDisable"
+                                    value={filters.isDisable}
+                                    onChange={handleFilterChange}
+                                    size="sm"
+                                    rounded="lg"
+                                >
+                                    <option value="0">Active</option>
+                                    <option value="1">Disabled</option>
+                                </Select>
+                                <Select
+                                    placeholder="Filter by Domain"
+                                    name="Domain.domain_name"
+                                    value={filters["Domain.domain_name"]}
+                                    onChange={handleFilterChange}
+                                    size="sm"
+                                    rounded="lg"
+                                >
+                                    <option value="">No Domain</option>
+                                    {domains.map((domain) => (
+                                        <option
+                                            key={domain.domain_id}
+                                            value={domain.domain_name}
+                                        >
+                                            {domain.domain_name}
+                                        </option>
+                                    ))}
+                                </Select>
                             </Flex>
                         </AccordionPanel>
                     </AccordionItem>
                 </Accordion>
 
-                {/* User Table */}
                 <TableContainer>
-                    <Table variant="striped" colorScheme="gray" size={"sm"}>
+                    <Table variant="simple" colorScheme="gray" size="sm">
                         <TableCaption>Users Overview</TableCaption>
-                        <Thead bg="gray.100">
+                        <Thead bg={tableHeaderBg}>
                             <Tr>
-                                <Th
-                                    cursor="pointer"
-                                    onClick={() => handleSort("username")}
-                                    _hover={{ bg: "gray.200" }}
-                                >
-                                    Username{" "}
-                                    {sortField === "username" &&
-                                        (sortDirection === "asc" ? "▲" : "▼")}
-                                </Th>
-                                <Th
-                                    cursor="pointer"
-                                    onClick={() => handleSort("email")}
-                                    _hover={{ bg: "gray.200" }}
-                                >
-                                    Email{" "}
-                                    {sortField === "email" &&
-                                        (sortDirection === "asc" ? "▲" : "▼")}
-                                </Th>
-                                <Th
-                                    cursor="pointer"
-                                    onClick={() => handleSort("isDisable")}
-                                    _hover={{ bg: "gray.200" }}
-                                >
-                                    Status{" "}
-                                    {sortField === "isDisable" &&
-                                        (sortDirection === "asc" ? "▲" : "▼")}
-                                </Th>
-                                <Th
-                                    cursor="pointer"
-                                    onClick={() => handleSort("isAdmin")}
-                                    _hover={{ bg: "gray.200" }}
-                                >
-                                    Role{" "}
-                                    {sortField === "isAdmin" &&
-                                        (sortDirection === "asc" ? "▲" : "▼")}
-                                </Th>
+                                {[
+                                    "username",
+                                    "email",
+                                    "isDisable",
+                                    "isAdmin",
+                                    "Domain.domain_name",
+                                ].map((field) => (
+                                    <Th
+                                        key={field}
+                                        cursor="pointer"
+                                        onClick={() =>
+                                            handleSort(field as keyof User)
+                                        }
+                                        _hover={{ bg: tableRowHoverBg }}
+                                    >
+                                        {field === "Domain.domain_name"
+                                            ? "Domain"
+                                            : field.charAt(0).toUpperCase() +
+                                              field.slice(1)}
+                                        {sortField === field &&
+                                            (sortDirection === "asc"
+                                                ? " ▲"
+                                                : " ▼")}
+                                    </Th>
+                                ))}
                                 <Th>Actions</Th>
                             </Tr>
                         </Thead>
@@ -370,108 +414,130 @@ const UserManagement: React.FC = () => {
                                             {user.isAdmin ? "Admin" : "User"}
                                         </Text>
                                     </Td>
+                                    <Td>{user["Domain.domain_name"]}</Td>
                                     <Td>
-                                        {/* Enable/Disable Button */}
-                                        <Tooltip
-                                            label={
-                                                user.isDisable
-                                                    ? "Enable User"
-                                                    : "Disable User"
-                                            }
-                                            fontSize="sm"
-                                        >
-                                            <IconButton
-                                                icon={
-                                                    user.isDisable ? (
-                                                        <FaUnlock />
-                                                    ) : (
-                                                        <FaUserLock />
-                                                    )
-                                                }
-                                                aria-label={
+                                        <HStack spacing={2}>
+                                            <Tooltip
+                                                label={
                                                     user.isDisable
                                                         ? "Enable User"
                                                         : "Disable User"
                                                 }
-                                                colorScheme={
-                                                    user.isDisable
-                                                        ? "green"
-                                                        : "red"
-                                                }
-                                                variant="outline"
-                                                size="sm"
-                                                mr={2}
-                                                onClick={() =>
-                                                    handleToggleDisable(
-                                                        user.user_id
-                                                    )
-                                                }
-                                            />
-                                        </Tooltip>
-
-                                        {/* Toggle Admin Button */}
-                                        <Tooltip
-                                            label={
-                                                user.isAdmin
-                                                    ? "Demote to User"
-                                                    : "Promote to Admin"
-                                            }
-                                            fontSize="sm"
-                                        >
-                                            <IconButton
-                                                icon={
-                                                    user.isAdmin ? (
-                                                        <FaUserAltSlash />
-                                                    ) : (
-                                                        <FaUserShield />
-                                                    )
-                                                }
-                                                aria-label={
+                                            >
+                                                <IconButton
+                                                    icon={
+                                                        user.isDisable ? (
+                                                            <FaUnlock />
+                                                        ) : (
+                                                            <FaUserLock />
+                                                        )
+                                                    }
+                                                    aria-label={
+                                                        user.isDisable
+                                                            ? "Enable User"
+                                                            : "Disable User"
+                                                    }
+                                                    colorScheme={
+                                                        user.isDisable
+                                                            ? "green"
+                                                            : "red"
+                                                    }
+                                                    variant="outline"
+                                                    size="sm"
+                                                    onClick={() =>
+                                                        handleToggleDisable(
+                                                            user.user_id
+                                                        )
+                                                    }
+                                                />
+                                            </Tooltip>
+                                            <Tooltip
+                                                label={
                                                     user.isAdmin
                                                         ? "Demote to User"
                                                         : "Promote to Admin"
                                                 }
-                                                colorScheme={
-                                                    user.isAdmin
-                                                        ? "yellow"
-                                                        : "blue"
-                                                }
-                                                variant="outline"
-                                                size="sm"
-                                                mr={2}
-                                                onClick={() =>
-                                                    handleToggleAdmin(
-                                                        user.user_id
-                                                    )
-                                                }
-                                            />
-                                        </Tooltip>
-
-                                        {/* Reset Password Button */}
-                                        <Tooltip
-                                            label="Reset Password"
-                                            fontSize="sm"
-                                        >
-                                            <IconButton
-                                                icon={<FaSyncAlt />}
-                                                aria-label="Reset Password"
-                                                colorScheme="teal"
-                                                variant="outline"
-                                                size="sm"
-                                                onClick={() =>
-                                                    handleResetPassword(
-                                                        user.user_id
-                                                    )
-                                                }
-                                            />
-                                        </Tooltip>
+                                            >
+                                                <IconButton
+                                                    icon={
+                                                        user.isAdmin ? (
+                                                            <FaUserAltSlash />
+                                                        ) : (
+                                                            <FaUserShield />
+                                                        )
+                                                    }
+                                                    aria-label={
+                                                        user.isAdmin
+                                                            ? "Demote to User"
+                                                            : "Promote to Admin"
+                                                    }
+                                                    colorScheme={
+                                                        user.isAdmin
+                                                            ? "yellow"
+                                                            : "blue"
+                                                    }
+                                                    variant="outline"
+                                                    size="sm"
+                                                    onClick={() =>
+                                                        handleToggleAdmin(
+                                                            user.user_id
+                                                        )
+                                                    }
+                                                />
+                                            </Tooltip>
+                                            <Tooltip label="Reset Password">
+                                                <IconButton
+                                                    icon={<FaSyncAlt />}
+                                                    aria-label="Reset Password"
+                                                    colorScheme="teal"
+                                                    variant="outline"
+                                                    size="sm"
+                                                    onClick={() =>
+                                                        handleResetPassword(
+                                                            user.user_id
+                                                        )
+                                                    }
+                                                />
+                                            </Tooltip>
+                                            <Tooltip label="Assign Domain">
+                                                <Select
+                                                    size="sm"
+                                                    value={user.domain_id || ""}
+                                                    onChange={(e) =>
+                                                        handleAssignDomain(
+                                                            user.user_id,
+                                                            Number(
+                                                                e.target.value
+                                                            )
+                                                        )
+                                                    }
+                                                    rounded={"lg"}
+                                                >
+                                                    <option value="">
+                                                        No Domain
+                                                    </option>
+                                                    {domains.map((domain) => (
+                                                        <option
+                                                            key={
+                                                                domain.domain_id
+                                                            }
+                                                            value={
+                                                                domain.domain_id
+                                                            }
+                                                        >
+                                                            {domain.domain_name}
+                                                        </option>
+                                                    ))}
+                                                </Select>
+                                            </Tooltip>
+                                        </HStack>
                                     </Td>
                                 </Tr>
                             ))}
                         </Tbody>
                         <Tfoot>
                             <Tr>
-                                <Td colSpan={5}>
+                                <Td colSpan={6}>
                                     <Flex
                                         justifyContent="space-between"
                                         alignItems="center"
@@ -510,7 +576,6 @@ const UserManagement: React.FC = () => {
                     </Table>
                 </TableContainer>
 
-                {/* Reset Password Modal */}
                 <Modal isOpen={isResetModalOpen} onClose={onResetModalClose}>
                     <ModalOverlay />
                     <ModalContent>
@@ -529,7 +594,6 @@ const UserManagement: React.FC = () => {
                                 />
                             </VStack>
                         </ModalBody>
-
                         <ModalFooter>
                             <Button
                                 colorScheme="blue"
@@ -545,8 +609,8 @@ const UserManagement: React.FC = () => {
                         </ModalFooter>
                     </ModalContent>
                 </Modal>
-            </Box>
-        </>
+            </VStack>
+        </Box>
     );
 };
 

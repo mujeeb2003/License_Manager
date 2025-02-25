@@ -111,7 +111,7 @@ function Category() {
                 <Tr key={row.category_id}>
                   <Td textAlign={'center'}>{row.category_id}</Td>
                   <Td textAlign={'center'}>{row.category_name}</Td>
-                  <Td textAlign={'right'}>
+                  <Td textAlign={'center'}>
                     
                     <AlertDialogS category_id={row.category_id}/>
                     <CategoryEditModal category={row} onSave={handleEdit}/>

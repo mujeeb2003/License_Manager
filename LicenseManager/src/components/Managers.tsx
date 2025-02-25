@@ -17,6 +17,7 @@ import {
     Input,
     InputGroup,
     InputLeftElement,
+    Tag,
 } from "@chakra-ui/react";
 import { useDispatch, useSelector } from "react-redux";
 import { createManager, editManager } from "../redux/license/licenseSlice";
@@ -113,26 +114,21 @@ const Managers: React.FC = () => {
             <ToastContainer autoClose={3000} theme="dark" stacked={true} />
             <Flex justifyContent="space-between" alignItems="center" mb={6}>
                 <Box>
-                    <Box
-                        style={{
-                            display: "flex",
-                            alignItems: "center",
-                        }}
-                    >
+                    <Box style={{ display: "flex", alignItems: "center" }}>
                         <Heading size="lg" color={textColor}>
                             <FaUserTie
                                 style={{
                                     display: "inline",
                                     marginRight: "10px",
-                                    fontSize:"25px"
+                                    fontSize: "25px"
                                 }}
                             />
                             Managers
                         </Heading>
                     </Box>
-                        <p style={{color:'var(--dark-grey)'}}>
-                            Manage your product managers efficiently
-                        </p>
+                    <Text color='var(--dark-grey)'>
+                        Manage your product managers efficiently
+                    </Text>
                 </Box>
                 <AddManagerModal onSave={handleSubmit} />
             </Flex>
@@ -155,23 +151,15 @@ const Managers: React.FC = () => {
                     <TableCaption>Managers Overview</TableCaption>
                     <Thead>
                         <Tr>
-                            {[
-                                "id",
-                                "name",
-                                "email",
-                                "project",
-                            ].map((field) => (
+                            {["id", "name", "email", "domains"].map((field) => (
                                 <Th
                                     key={field}
-                                    onClick={() =>
-                                        handleSort(field as keyof Manager)
-                                    }
-                                    cursor="pointer"
+                                    onClick={() => field !== "domains" && handleSort(field as keyof Manager)}
+                                    cursor={field !== "domains" ? "pointer" : "default"}
                                 >
                                     <Flex alignItems="center">
-                                        {field.charAt(0).toUpperCase() +
-                                            field.slice(1)}
-                                        <FaSort style={{ marginLeft: "5px" }} />
+                                        {field.charAt(0).toUpperCase() + field.slice(1)}
+                                        {field !== "domains" && <FaSort style={{ marginLeft: "5px" }} />}
                                     </Flex>
                                 </Th>
                             ))}
@@ -179,15 +167,21 @@ const Managers: React.FC = () => {
                         </Tr>
                     </Thead>
                     <Tbody>
-                        {currentData?.map((manager) => (
+                        {currentData?.map((manager,index) => (
                             <Tr
                                 key={manager.manager_id}
                                 _hover={{ bg: hoverBgColor }}
                             >
-                                <Td>{manager.manager_id}</Td>
+                                <Td>{index+1}</Td>
                                 <Td>{manager.name}</Td>
                                 <Td>{manager.email}</Td>
-                                <Td>{manager.project}</Td>
+                                <Td>
+                                    {manager.Domains.map((domain) => (
+                                        <Tag key={domain.domain_id} mr={2} mb={2}>
+                                            {domain.domain_name}
+                                        </Tag>
+                                    ))}
+                                </Td>
                                 <Td>
                                     <EditManagerModal
                                         manager={manager}

@@ -98,5 +98,7 @@ module.exports = {
     Log,
     Manager,
     Domain,
+    DomainManager,
+    DomainVendor,
     db
 };

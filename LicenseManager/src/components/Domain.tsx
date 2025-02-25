@@ -35,25 +35,22 @@ import {
     DragHandleIcon,
 } from "@chakra-ui/icons";
 import { useDispatch, useSelector } from "react-redux";
-import {
-    createDomain,
-    editDomain,
-} from "../redux/license/licenseSlice";
+import { createDomain, editDomain } from "../redux/license/licenseSlice";
 import { AppDispatch, RootState, Domain, domainForm } from "../types";
 import AlertDialogS from "./Dialog/AlertDialog";
-import { toast,ToastContainer } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 
 const DomainManagement: React.FC = () => {
     const dispatch = useDispatch<AppDispatch>();
     const { domains } = useSelector((state: RootState) => state.license);
     const { user } = useSelector((state: RootState) => state.user);
     const { isOpen, onOpen, onClose } = useDisclosure();
-    // const toast = useToast();
 
     const [formData, setFormData] = useState<domainForm>({
         domain_name: "",
         parent_domain_id: 0,
     });
+
     const [editingDomain, setEditingDomain] = useState<Domain | null>(null);
 
     const bgColor = useColorModeValue("white", "gray.800");
@@ -70,8 +67,12 @@ const DomainManagement: React.FC = () => {
     };
 
     const handleSubmit = () => {
-        if(formData.parent_domain_id == 0 && !user.isSuperAdmin ){
-            toast.error("Please select a parent domain")
+        if (formData.parent_domain_id == 0 && !user.isSuperAdmin) {
+            toast.error("Please select a parent domain");
+            return;
+        }
+        if (formData.parent_domain_id === editingDomain?.domain_id) {
+            toast.error("Cannot set the same domain as parent domain");
             return;
         }
 
@@ -79,23 +80,28 @@ const DomainManagement: React.FC = () => {
             dispatch(
                 editDomain({ ...formData, domain_id: editingDomain.domain_id })
             )
-                .then(() => {
-                    toast.success("Domain updated successfully");
+                .then((res) => {
+                    if (res.payload.domain) {
+                        toast.success("Domain Added Successfully");
+                    }
+                    if (res.payload.error) {
+                        toast.error(res.payload.error);
+                    }
                     onClose();
                 })
-                .catch((error) =>
-                    toast.error(error.message)
-                );
+                .catch((error) => toast.error(error.message));
         } else {
             dispatch(createDomain(formData))
-                .then(() => {
-                    toast.success("Domain created successfully");
-                    
+                .then((res) => {
+                    if (res.payload.domain) {
+                        toast.success("Domain Added Successfully");
+                    }
+                    if (res.payload.error) {
+                        toast.error(res.payload.error);
+                    }
                     onClose();
                 })
-                .catch((error) =>
-                    toast.error(error.message)
-                );
+                .catch((error) => toast.error(error.message));
         }
     };
 
@@ -149,26 +155,14 @@ const DomainManagement: React.FC = () => {
             </AccordionButton>
             <AccordionPanel pb={4} pl={6}>
                 <HStack spacing={2} mb={2}>
-                    <Tooltip label="Edit Domain">
-                        <IconButton
-                            aria-label="Edit domain"
-                            icon={<EditIcon />}
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleEdit(domain)}
-                        />
-                    </Tooltip>
-                    <Tooltip label="Delete Domain">
-                        <AlertDialogS domain_id={domain.domain_id} isRound={true}/>
-                        {/* <IconButton
-                            aria-label="Delete domain"
-                            icon={<DeleteIcon />}
-                            size="sm"
-                            variant="outline"
-                            colorScheme="red"
-                            onClick={() => handleDelete(domain.domain_id)}
-                        /> */}
-                    </Tooltip>
+                    <IconButton
+                        aria-label="Edit domain"
+                        icon={<EditIcon />}
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleEdit(domain)}
+                    />
+                    <AlertDialogS domain_id={domain.domain_id} isRound={true} />
                 </HStack>
                 {renderDomainTree(domain.domain_id)}
             </AccordionPanel>
@@ -211,8 +205,8 @@ const DomainManagement: React.FC = () => {
     };
 
     return (
-        <Box p={6} bg={bgColor} borderRadius="lg" boxShadow="xl">
-            <ToastContainer theme="colored" stacked={true} autoClose={3000}/>
+        <Box p={6} bg={bgColor}>
+            <ToastContainer theme="colored" stacked={true} autoClose={3000} />
             <VStack align="stretch" spacing={6}>
                 <Flex
                     justifyContent="space-between"

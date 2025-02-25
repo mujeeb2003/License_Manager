@@ -42,7 +42,7 @@ function App() {
                   <Route path="/Licenses" element={<License />} />
                   <Route path="/Vendors" element={<Vendor />} />
                   <Route path="/Category" element={<Category />} />
-                  {isSuperAdmin && <Route path="/userManagement" element={<UserManagementComponent />} />}
+                  {isAdmin && <Route path="/userManagement" element={<UserManagementComponent />} />}
                   {isAdmin && <Route path="/productManager" element={<Managers />} />}
                   {isAdmin && <Route path="/domains" element={<DomainManagement />} />}
                   <Route path="/profile" element={<ProfilePage />}/>

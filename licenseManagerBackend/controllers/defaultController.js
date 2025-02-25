@@ -5,15 +5,20 @@ const {
     Log,
     Manager,
     Domain,
+    DomainManager,
+    DomainVendor,
 } = require("../models/index.js");
 const syslog = require("syslog-client");
-const { Op, where, or } = require("sequelize");
-
+const { Op } = require("sequelize");
+const { getDescendantDomains } = require("../utils/getDescendantDomain.js");
 // const client = syslog.createClient("localhost", { port: 514 }); // Create syslog client
 
 module.exports.getLicenseopt = async (req, res) => {
     try {
-        const { isAdmin, isSuperAdmin } = req.user;
+        const { isAdmin, isSuperAdmin, domain_id } = req.user;
+        const descendantDomains = await getDescendantDomains(domain_id);
+        descendantDomains.push(domain_id);
+
         let categories, vendors, managers, domains;
 
         if (isSuperAdmin) {
@@ -25,55 +30,44 @@ module.exports.getLicenseopt = async (req, res) => {
                 include: [Domain],
             });
             domains = await Domain.findAll();
-        } else if (isAdmin) {
+        } else {
             categories = await Category.findAll();
-            vendors = await Vendor.findAll(
-                {
-                    include: [Domain],
-                },
-                {
-                    where: {
-                        [Op.or]: [
-                            { domain_id: req.user.domain_id },
-                            { parent_domain_id: req.user.domain_id },
-                        ],
+            vendors = await Vendor.findAll({
+                include: [
+                    {
+                        model: Domain,
+                        where: {
+                            domain_id: { [Op.in]: [...descendantDomains] },
+                        },
                     },
-                }
-            );
-            managers = await Manager.findAll(
-                {
-                    include: [Domain],
-                },
-                {
-                    where: {
-                        [Op.or]: [
-                            { domain_id: req.user.domain_id },
-                            { parent_domain_id: req.user.domain_id },
-                        ],
+                ],
+            });
+            managers = await Manager.findAll({
+                include: [
+                    {
+                        model: Domain,
+                        where: {
+                            domain_id: { [Op.in]: [...descendantDomains] },
+                        },
                     },
-                }
-            );
+                ],
+            });
             domains = await Domain.findAll({
                 where: {
-                    [Op.or]: [
-                        { domain_id: req.user.domain_id },
-                        { parent_domain_id: req.user.domain_id },
-                    ],
+                    domain_id: { [Op.in]: [...descendantDomains] }
                 },
             });
-            console.log(domains);
+            // console.log(domains);
             domains.map(async (domain) => {
-                if(domain.dataValues.parent_domain_id){
-
-                    const parentDomain = await Domain.findOne({ where: { domain_id: domain.dataValues.parent_domain_id } });
+                if (domain.dataValues.parent_domain_id) {
+                    const parentDomain = await Domain.findOne({
+                        where: {
+                            domain_id: domain.dataValues.parent_domain_id,
+                        },
+                    });
                     domains.push(parentDomain);
                 }
             });
-        } else {
-            categories = [];
-            vendors = [];
-            managers = [];
-            domains = [];
         }
         // console.log(JSON.stringify(categories), JSON.stringify(vendors), JSON.stringify(managers), JSON.stringify(domains));
         return res.status(200).send({ categories, vendors, managers, domains });
@@ -89,6 +83,7 @@ module.exports.createVendor = async (req, res) => {
         vendor_representative,
         vendor_rep_phone,
         vendor_rep_email,
+        domain_ids,
     } = req.body;
 
     try {
@@ -97,7 +92,9 @@ module.exports.createVendor = async (req, res) => {
             !vendor_email ||
             !vendor_representative ||
             !vendor_rep_phone ||
-            !vendor_rep_email
+            !vendor_rep_email ||
+            !domain_ids ||
+            !domain_ids.length
         )
             return res.status(400).send({ error: "All fields are required" });
 
@@ -112,7 +109,21 @@ module.exports.createVendor = async (req, res) => {
         if (!vendor)
             return res.status(400).send({ error: "Vendor not created" });
 
-        return res.status(200).send({ vendor });
+        // Create domain vendor associations
+        const domainVendorAssociations = domain_ids.map((domain_id) => ({
+            domain_id,
+            vendor_id: vendor.vendor_id,
+        }));
+
+        await DomainVendor.bulkCreate(domainVendorAssociations);
+
+        // Fetch the created manager with domains
+        const vendorWithDomains = await Vendor.findOne({
+            where: { vendor_id: vendor.vendor_id },
+            include: [Domain],
+        });
+
+        return res.status(200).send({ vendor: vendorWithDomains });
     } catch (error) {
         return res.status(500).send({ error: error.message });
     }
@@ -188,6 +199,7 @@ module.exports.editVendor = async (req, res) => {
         vendor_representative,
         vendor_rep_phone,
         vendor_rep_email,
+        domain_ids,
     } = req.body;
     const user_id = req.user.user_id;
 
@@ -204,7 +216,29 @@ module.exports.editVendor = async (req, res) => {
 
         await vendor.save();
 
-        return res.status(200).send({ vendor });
+        // Update domain associations if domain_ids are provided
+        if (domain_ids && domain_ids.length) {
+            // Remove all existing domain associations
+            await DomainVendor.destroy({
+                where: { vendor_id },
+            });
+
+            // Create new domain manager associations
+            const domainVendorAssociations = domain_ids.map((domain_id) => ({
+                domain_id,
+                vendor_id,
+            }));
+
+            await DomainVendor.bulkCreate(domainVendorAssociations);
+        }
+
+        // Fetch updated manager with domains
+        const updatedVendor = await Vendor.findOne({
+            where: { vendor_id },
+            include: [Domain],
+        });
+
+        return res.status(200).send({ vendor: updatedVendor });
     } catch (error) {
         return res.status(500).send({ error: error.message });
     }
@@ -231,25 +265,44 @@ module.exports.editCategory = async (req, res) => {
 };
 
 module.exports.createManager = async (req, res) => {
-    const { name, email, project } = req.body;
+    const { name, email, domain_ids } = req.body;
     try {
-        if (!name || !email || !project)
+        if (!name || !email || !domain_ids || !domain_ids.length)
             return res.status(400).send({ error: "All fields are required" });
 
-        console.log(name, email, project);
-        const manager = await Manager.create({ name, email, project });
+        Manager.findOne({ where: { email } }).then((manager) => {
+            if (manager) {
+                return res.status(400).send({ error: "Manager with same email already exists" });
+            }
+        });
+
+        const manager = await Manager.create({ name, email });
 
         if (!manager)
             return res.status(400).send({ error: "Manager not created" });
 
-        return res.status(200).send({ manager });
+        // Create domain manager associations
+        const domainManagerAssociations = domain_ids.map((domain_id) => ({
+            domain_id,
+            manager_id: manager.manager_id,
+        }));
+
+        await DomainManager.bulkCreate(domainManagerAssociations);
+
+        // Fetch the created manager with domains
+        const managerWithDomains = await Manager.findOne({
+            where: { manager_id: manager.manager_id },
+            include: [Domain],
+        });
+
+        return res.status(200).send({ manager: managerWithDomains });
     } catch (error) {
         return res.status(500).send({ error: error.message });
     }
 };
 
 module.exports.editManager = async (req, res) => {
-    const { manager_id, name, email, project } = req.body;
+    const { manager_id, name, email, domain_ids } = req.body;
 
     try {
         let manager = await Manager.findOne({ where: { manager_id } });
@@ -257,13 +310,35 @@ module.exports.editManager = async (req, res) => {
         if (!manager)
             return res.status(404).send({ error: "Manager not found" });
 
+        // Update basic manager info
         manager.name = name;
         manager.email = email;
-        manager.project = project;
 
         await manager.save();
 
-        return res.status(200).send({ manager });
+        // Update domain associations if domain_ids are provided
+        if (domain_ids && domain_ids.length) {
+            // Remove all existing domain associations
+            await DomainManager.destroy({
+                where: { manager_id },
+            });
+
+            // Create new domain manager associations
+            const domainManagerAssociations = domain_ids.map((domain_id) => ({
+                domain_id,
+                manager_id,
+            }));
+
+            await DomainManager.bulkCreate(domainManagerAssociations);
+        }
+
+        // Fetch updated manager with domains
+        const updatedManager = await Manager.findOne({
+            where: { manager_id },
+            include: [Domain],
+        });
+
+        return res.status(200).send({ manager: updatedManager });
     } catch (error) {
         return res.status(500).send({ error: error.message });
     }

@@ -8,7 +8,7 @@ import type {
     domainForm,
 } from "../../types";
 // import axios from "axios";
-import api from "../../utils/axiosUtil";
+import api from "../../utils/axiosUtil.tsx";
 
 const initialState: licenseState = {
     licenses: [],

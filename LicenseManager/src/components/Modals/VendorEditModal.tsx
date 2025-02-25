@@ -1,191 +1,233 @@
-import { EditIcon } from '@chakra-ui/icons'
-import { Drawer, DrawerBody, DrawerFooter, DrawerHeader, DrawerOverlay, DrawerContent, DrawerCloseButton, useDisclosure, Button, Stack, FormLabel, Input,IconButton, FormControl, FormErrorMessage } from '@chakra-ui/react'
-import React, { useState } from 'react'
-import { vendorForm, type Vendor, type RootState} from '../../types';
-import { useSelector } from 'react-redux';
-import { toast } from 'react-toastify';
+import type React from "react";
+import { useState } from "react";
+import {
+    Drawer,
+    DrawerBody,
+    DrawerFooter,
+    DrawerHeader,
+    DrawerOverlay,
+    DrawerContent,
+    DrawerCloseButton,
+    Button,
+    VStack,
+    FormLabel,
+    Input,
+    IconButton,
+    FormControl,
+    FormErrorMessage,
+    useDisclosure,
+} from "@chakra-ui/react";
+import CustomMultiSelect from "../subComponents/CustomMultiSelect";
+import { EditIcon } from "@chakra-ui/icons";
+import type { vendorForm, Vendor, RootState } from "../../types";
+import { useSelector } from "react-redux";
+import { toast } from "react-toastify";
 
-export default function VendorEditModal({ vendor, onSave }: { vendor:Vendor,onSave: (data: vendorForm&{vendor_id:number}) => void }) {
-    const { isOpen, onOpen, onClose } = useDisclosure()
-    const { isAdmin } = useSelector((state:RootState)=>state.user);
+interface VendorEditModalProps {
+    vendor: Vendor;
+    onSave: (data: vendorForm & { vendor_id: number }) => void;
+}
 
-    const handleClick = () =>{
-      !isAdmin ? toast.warning("Only Admins can edit Vendor details") : onOpen();
-    }
+const VendorEditModal: React.FC<VendorEditModalProps> = ({
+    vendor,
+    onSave,
+}) => {
+    const { isOpen, onOpen, onClose } = useDisclosure();
+    const { isAdmin } = useSelector((state: RootState) => state.user);
+    const { domains } = useSelector((state: RootState) => state.license);
 
     const [formData, setFormData] = useState<vendorForm>({
-        vendor_name:vendor.vendor_name,
-        vendor_email:vendor.vendor_email,
-        vendor_rep_email:vendor.vendor_rep_email,
-        vendor_rep_phone:vendor.vendor_rep_phone,
-        vendor_representative:vendor.vendor_representative
+        vendor_name: vendor.vendor_name,
+        vendor_email: vendor.vendor_email,
+        vendor_rep_email: vendor.vendor_rep_email,
+        vendor_rep_phone: vendor.vendor_rep_phone,
+        vendor_representative: vendor.vendor_representative,
+        domain_ids: vendor.Domains.map((domain) => domain.domain_id),
     });
-    
-    const [errors, setErrors] = useState<vendorForm>({
-        vendor_name:"",
-        vendor_email:"",
-        vendor_rep_email:"",
-        vendor_rep_phone:"",
-        vendor_representative:""
+
+    const [errors, setErrors] = useState<{
+        vendor_name: string;
+        vendor_email: string;
+        vendor_representative: string;
+        vendor_rep_phone: string;
+        vendor_rep_email: string;
+        domain_ids: string;
+    }>({
+        vendor_name: "",
+        vendor_email: "",
+        vendor_representative: "",
+        vendor_rep_phone: "",
+        vendor_rep_email: "",
+        domain_ids: "",
     });
-    
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+
+    const handleClick = () => {
+        !isAdmin
+            ? toast.warning("Only Admins can edit Vendor details")
+            : onOpen();
+    };
+
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setFormData((prev) => ({
             ...prev,
-            [name]: value
+            [name]: value,
         }));
-        
         setErrors((prev) => ({
             ...prev,
-            [name]: ''
+            [name]: "",
         }));
     };
-    
-    const handleSubmit = () => {
-        const newErrors = {
-            vendor_name: "",
-            vendor_email:"",
-            vendor_rep_email:"",
-            vendor_rep_phone:"",
-            vendor_representative:""
 
-        }
-        let error = false;
-        if(!formData["vendor_name"]){
-            newErrors["vendor_name"] = 'Vendor is required';
-            error = true;
-        }
-        if(!formData["vendor_email"]){
-            newErrors["vendor_email"] = 'Vendor Email is required';
-            error = true;
-        }
-        if(!formData["vendor_representative"]){
-            newErrors["vendor_representative"] = 'Vendor Representative is required';
-            error = true;
-        }
-        if(!formData["vendor_rep_email"]){
-            newErrors["vendor_rep_email"] = 'Vendor Representative Email is required';
-            error = true;
-        }
-        if(!formData["vendor_rep_phone"]){
-            newErrors["vendor_rep_phone"] = 'Vendor Representative Phone is required';
-            error = true;
-        }
+    // const handleDomainChange = (selectedOptions: readonly Domain[]) => {
+    //     setFormData((prev) => ({
+    //         ...prev,
+    //         domain_ids: selectedOptions.map((option) => option.domain_id),
+    //     }));
+    //     setErrors((prev) => ({
+    //         ...prev,
+    //         domain_ids: "",
+    //     }));
+    // };
+
+    const handleSubmit = () => {
+        const newErrors: {
+            vendor_name: string;
+            vendor_email: string;
+            vendor_representative: string;
+            vendor_rep_phone: string;
+            vendor_rep_email: string;
+            domain_ids: string;
+        } = {
+            vendor_name: "",
+            vendor_email: "",
+            vendor_representative: "",
+            vendor_rep_phone: "",
+            vendor_rep_email: "",
+            domain_ids: "",
+        };
+        let hasError = false;
+
+        Object.entries(formData).forEach(([key, value]) => {
+            if (key === "domain_ids" && (value as number[]).length === 0) {
+                newErrors[key] = "At least one domain must be selected";
+                hasError = true;
+            } else if (!value) {
+                newErrors[key as keyof vendorForm] = `${key.replace(
+                    "_",
+                    " "
+                )} is required`;
+                hasError = true;
+            }
+        });
 
         setErrors(newErrors);
-        setTimeout(() => {
-            setErrors({
-                vendor_name:"",
-                vendor_email:"",
-                vendor_rep_email:"",
-                vendor_rep_phone:"",
-                vendor_representative:""
-            })
-        },3000)
 
-        if(!error){
-            onSave({...formData,vendor_id:vendor.vendor_id});
-            onClose(); // Close the modal after saving
+        if (!hasError) {
+            onSave({ ...formData, vendor_id: vendor.vendor_id });
+            onClose();
         }
     };
-  
+
     return (
-      <>
-        <IconButton
-          isRound
-          variant="solid"
-          colorScheme="blue"
-          icon={<EditIcon />}
-          aria-label="Edit"
-          onClick={handleClick}
-        />
+        <>
+            <IconButton
+                icon={<EditIcon />}
+                aria-label="Edit Vendor"
+                onClick={handleClick}
+                colorScheme="blue"
+                variant="solid"
+                isRound
+            />
 
-        <Drawer
-          isOpen={isOpen}
-          placement='right'
-          onClose={onClose}
-        >
-          <DrawerOverlay />
-          <DrawerContent>
-            <DrawerCloseButton />
-            <DrawerHeader borderBottomWidth='1px'>
-              Edit License
-            </DrawerHeader>
-  
-            <DrawerBody>
-              <Stack spacing='24px'>
-                <FormControl isInvalid={!!errors.vendor_name}>
-                        <FormLabel>Vendor Name</FormLabel>
-                        <Input
-                        required
-                        name="vendor_name"
-                        value={formData.vendor_name}
-                        onChange={handleInputChange}
-                        placeholder="Vendor"
-                        />
-                        <FormErrorMessage>{errors.vendor_name}</FormErrorMessage>
-                </FormControl>
-                <FormControl isInvalid={!!errors.vendor_email} mt={4}>
-                    <FormLabel>Vendor Email</FormLabel>
-                    <Input
-                    required
-                    name="vendor_email"
-                    value={formData.vendor_email}
-                    onChange={handleInputChange}
-                    placeholder="Vendor"
-                    />
-                    <FormErrorMessage>{errors.vendor_email}</FormErrorMessage>
-                </FormControl>
+            <Drawer
+                isOpen={isOpen}
+                placement="right"
+                onClose={onClose}
+                size="md"
+            >
+                <DrawerOverlay />
+                <DrawerContent>
+                    <DrawerCloseButton />
+                    <DrawerHeader borderBottomWidth="1px">
+                        Edit Vendor
+                    </DrawerHeader>
 
-                <FormControl isInvalid={!!errors.vendor_representative} mt={4}>
-                    <FormLabel>Vendor Representative</FormLabel>
-                    <Input
-                    required
-                    name="vendor_representative"
-                    value={formData.vendor_representative}
-                    onChange={handleInputChange}
-                    placeholder="Vendor"
-                    />
-                    <FormErrorMessage>{errors.vendor_representative}</FormErrorMessage>
-                </FormControl>
+                    <DrawerBody>
+                        <VStack spacing={4}>
+                            {Object.entries(formData).map(([key, value]) => {
+                                if (key === "domain_ids") {
+                                    return (
+                                        <FormControl
+                                            isInvalid={!!errors.domain_ids}
+                                        >
+                                            <FormLabel>Domains</FormLabel>
+                                            <CustomMultiSelect
+                                                options={domains.map(
+                                                    (domain) => ({
+                                                        value: domain.domain_id,
+                                                        label: domain.domain_name,
+                                                    })
+                                                )}
+                                                selectedValues={
+                                                    formData.domain_ids
+                                                }
+                                                onChange={(selectedValues) => {
+                                                    setFormData((prev) => ({
+                                                        ...prev,
+                                                        domain_ids:
+                                                            selectedValues,
+                                                    }));
+                                                    setErrors((prev) => ({
+                                                        ...prev,
+                                                        domain_ids: "",
+                                                    }));
+                                                }}
+                                                placeholder="Select domains"
+                                            />
+                                            <FormErrorMessage>
+                                                {errors.domain_ids}
+                                            </FormErrorMessage>
+                                        </FormControl>
+                                    );
+                                }
+                                return (
+                                    <FormControl
+                                        key={key}
+                                        isInvalid={
+                                            !!errors[key as keyof vendorForm]
+                                        }
+                                    >
+                                        <FormLabel>
+                                            {key.replace("_", " ")}
+                                        </FormLabel>
+                                        <Input
+                                            name={key}
+                                            value={value as string}
+                                            onChange={handleInputChange}
+                                            placeholder={key.replace("_", " ")}
+                                        />
+                                        <FormErrorMessage>
+                                            {errors[key as keyof vendorForm]}
+                                        </FormErrorMessage>
+                                    </FormControl>
+                                );
+                            })}
+                        </VStack>
+                    </DrawerBody>
 
-                <FormControl isInvalid={!!errors.vendor_rep_email} mt={4}>
-                    <FormLabel>Vendor Representative Email</FormLabel>
-                    <Input
-                    required
-                    name="vendor_rep_email"
-                    value={formData.vendor_rep_email}
-                    onChange={handleInputChange}
-                    placeholder="Vendor"
-                    type='email'
-                    />
-                    <FormErrorMessage>{errors.vendor_rep_email}</FormErrorMessage>
-                </FormControl>
+                    <DrawerFooter borderTopWidth="1px">
+                        <Button variant="outline" mr={3} onClick={onClose}>
+                            Cancel
+                        </Button>
+                        <Button colorScheme="blue" onClick={handleSubmit}>
+                            Save
+                        </Button>
+                    </DrawerFooter>
+                </DrawerContent>
+            </Drawer>
+        </>
+    );
+};
 
-                <FormControl isInvalid={!!errors.vendor_rep_phone} mt={4}>
-                    <FormLabel>Vendor Representative Phone</FormLabel>
-                    <Input
-                    required
-                    name="vendor_rep_phone"
-                    value={formData.vendor_rep_phone}
-                    onChange={handleInputChange}
-                    placeholder="Vendor"
-                    type='number'
-                    />
-                    <FormErrorMessage>{errors.vendor_rep_phone}</FormErrorMessage>
-                </FormControl>
-              </Stack>
-            </DrawerBody>
-  
-            <DrawerFooter borderTopWidth='1px'>
-              <Button variant='outline' mr={3} onClick={onClose}>
-                Cancel
-              </Button>
-              <Button colorScheme='blue' onClick={handleSubmit}>Submit</Button>
-            </DrawerFooter>
-          </DrawerContent>
-        </Drawer>
-      </>
-    )
-  }
+export default VendorEditModal;

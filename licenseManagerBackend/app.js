@@ -23,7 +23,7 @@ const db = require("./config/databaseConfig.js");
 
 app.use(
     cors({
-        origin: allowedOrigins[1], // Be explicit rather than using a function
+        origin: allowedOrigins[0], 
         credentials: true,
         methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
         allowedHeaders: ["Content-Type", "Authorization"],

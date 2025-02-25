@@ -1,6 +1,8 @@
 const { User, Domain } = require("../models/index.js");
 const { generateToken } = require("../utils/generateToken.js");
 const bcrypt = require("bcryptjs");
+const { getDescendantDomains } = require("../utils/getDescendantDomain.js");
+const { Op } = require("sequelize");
 
 module.exports.register = async (req, res) => {
     let { username, email, password } = req.body;
@@ -23,6 +25,7 @@ module.exports.register = async (req, res) => {
                     password: hash,
                     isAdmin: userlength == 0 ? true : false,
                     isSuperAdmin: userlength == 0 ? true : false,
+                    domain_id: userlength === 0 ? 1 : null,
                 });
 
                 res.status(200).send({
@@ -42,10 +45,21 @@ module.exports.register = async (req, res) => {
 
 module.exports.login = async (req, res) => {
     let { email, password } = req.body;
+    if (!email || !password)
+        return res
+            .status(400)
+            .send({ error: "Please provide email and password" });
     email = email.toLowerCase();
     try {
         let user = await User.findOne({
-            where: { email }
+            where: { email },
+            include: [
+                {
+                    model: Domain,
+                    attributes: ["domain_name"],
+                },
+            ],
+            raw: true,
         });
 
         // console.log(JSON.stringify(user));
@@ -67,26 +81,6 @@ module.exports.login = async (req, res) => {
 
         const token = generateToken(user);
 
-        res.cookie("token", token, {
-            httpOnly: true,
-            secure: true,
-            sameSite: "none",
-            maxAge: 24 * 60 * 60 * 1000,
-            path: "/",
-            domain:
-                process.env.NODE_ENV === "production"
-                    ? ".vercel.app"
-                    : "localhost",
-        });
-
-        // Single origin header instead of multiple
-        res.header(
-            "Access-Control-Allow-Origin",
-            process.env.NODE_ENV === "production"
-                ? "https://license-manager-cyan.vercel.app"
-                : "http://localhost:5173"
-        );
-
         res.status(200).send({
             user: {
                 email: user.email,
@@ -94,9 +88,14 @@ module.exports.login = async (req, res) => {
                 user_id: user.user_id,
                 isAdmin: user.isAdmin,
                 isSuperAdmin: user.isSuperAdmin,
-                domain_id: user.domain_id
+                domain_id: user.domain_id,
+                "Domain.domain_name": user["Domain.domain_name"],
             },
+            token,
             message: "login successfull",
+            domain_message: !user.domain_id
+                ? "Please contact administrator to assign domain"
+                : "",
         });
     } catch (error) {
         return res.status(500).send({ error: error.message });
@@ -147,25 +146,6 @@ module.exports.userDisable = async (req, res) => {
 
 module.exports.logoutUser = async (req, res) => {
     try {
-        res.clearCookie("token", {
-            httpOnly: true,
-            secure: true,
-            sameSite: "none",
-            path: "/",
-            domain:
-                process.env.NODE_ENV === "production"
-                    ? ".vercel.app"
-                    : "localhost",
-        });
-
-        // Single origin header
-        res.header(
-            "Access-Control-Allow-Origin",
-            process.env.NODE_ENV === "production"
-                ? "https://license-manager-cyan.vercel.app"
-                : "http://localhost:5173"
-        );
-
         return res.status(200).send({ message: "Successfully Logged Out" });
     } catch (error) {
         return res.status(500).send({ error: error.message });
@@ -197,9 +177,10 @@ module.exports.resetPassword = async (req, res) => {
 
                 await user.save();
 
-                return res
-                    .status(200)
-                    .send({ message: "Password successfully reset." });
+                return res.status(200).send({
+                    user: user,
+                    message: "Password successfully reset.",
+                });
             });
         });
     } catch (error) {
@@ -209,28 +190,31 @@ module.exports.resetPassword = async (req, res) => {
 
 module.exports.updateUser = async (req, res) => {
     const { user_id, password, username } = req.body;
-
+    console.log(password, username);
     try {
         const user = await User.findByPk(user_id);
 
         if (!user) return res.status(404).send({ error: "User not found" });
-
+        let hashPassword;
         {
             password &&
                 bcrypt.genSalt(10, (err, salt) => {
                     if (err)
                         return res.status(400).send({ error: err.message });
                     bcrypt.hash(password, salt, async (err, hash) => {
-                        if (err)
+                        console.log(hash, err);
+                        if (err) {
                             return res.status(400).send({ error: err.message });
-
+                        }
                         user.password = hash;
+                        await user.save()
                     });
                 });
         }
         {
             username && (user.username = username);
         }
+        console.log(user);
         let newuser = {
             user_id: user.user_id,
             email: user.email,
@@ -238,8 +222,8 @@ module.exports.updateUser = async (req, res) => {
             isAdmin: user.isAdmin,
             isSuperAdmin: user.isSuperAdmin,
             isDisable: user.isDisable,
+            domain_id: user.domain_id,
         };
-        await user.save();
 
         return res.status(200).send({
             user: newuser,
@@ -250,9 +234,71 @@ module.exports.updateUser = async (req, res) => {
     }
 };
 
+module.exports.assignDomain = async (req, res) => {
+    const { user_id, domain_id } = req.body;
+    try {
+        let user = await User.findByPk(user_id);
+
+        if (!user) return res.status(404).send({ error: "User not found" });
+
+        user.domain_id = domain_id;
+
+        await user.save();
+
+        user = await User.findByPk(user_id, {
+            attributes: {
+                exclude: ["password"],
+            },
+            include: [
+                {
+                    model: Domain,
+                    attributes: ["domain_name"],
+                },
+            ],
+            raw: true,
+        });
+        return res.send({ user, message: "User update successfull" });
+    } catch (error) {
+        return res.status(500).send({ error: error.message });
+    }
+};
+
 module.exports.getAllUsers = async (req, res) => {
     try {
-        const users = await User.findAll();
+        const { domain_id, isSuperAdmin } = req.user;
+        const descendantDomains = await getDescendantDomains(domain_id);
+        descendantDomains.push(domain_id);
+
+        let userQueryOptions = {
+            attributes: {
+                exclude: ["password"],
+            },
+            include: [
+                {
+                    model: Domain,
+                    attributes: ["domain_name"],
+                },
+            ],
+            raw: true,
+        };
+
+        // Apply domain filtering only if the user is not a superadmin
+        if (!req.user.isSuperAdmin) {
+            userQueryOptions.include[0].where = {
+                [Op.or]: [
+                    {
+                        domain_id: {
+                            [Op.in]: descendantDomains,
+                        },
+                    },
+                    {
+                        domain_id: null,
+                    },
+                ],
+            };
+        }
+
+        const users = await User.findAll(userQueryOptions);
 
         if (!users) return res.status(400).send({ error: "No users found" });
 

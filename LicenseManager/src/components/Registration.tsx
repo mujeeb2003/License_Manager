@@ -53,12 +53,16 @@ function Registration() {
             const result = await dispatch(userLogin({email:formValue.email,password:formValue.password})).unwrap();
             
             if(result.message){
-                console.log("Login function");
-                navigate("/home/dashboard");
+                let message;
+                if(result.domain_message){
+                    message = result.domain_message
+                }
+                navigate("/home/dashboard",{state:{message:message}});
+                
             }
         } catch (error: any) {
-            if (error && error.error) return toast.error(error.error);
             console.log(error);
+            if (error && error.error) return toast.error(error.error);
         }
         
     }

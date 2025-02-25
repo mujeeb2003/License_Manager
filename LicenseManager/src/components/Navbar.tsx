@@ -31,9 +31,9 @@ e
         <Link to="/home/licenses"  id={isActive('/home/licenses') ? 'isactive' : ''}>Licenses</Link>
         <Link to="/home/vendors"  id={isActive('/home/vendors') ? 'isactive' : ''}>Vendors</Link>
         <Link to="/home/category"  id={isActive('/home/category') ? 'isactive' : ''}>Category</Link>
-        {isSuperAdmin &&<Link to="/home/userManagement"  id={isActive('/home/userManagement') ? 'isactive' : ''}>User Management</Link>}
         {isAdmin &&<Link to="/home/productManager"  id={isActive('/home/productManager') ? 'isactive' : ''}>Managers</Link>}
         {isAdmin &&<Link to="/home/domains"  id={isActive('/home/domains') ? 'isactive' : ''}>Domains</Link>}
+        {isAdmin &&<Link to="/home/userManagement"  id={isActive('/home/userManagement') ? 'isactive' : ''}>User Management</Link>}
       </div>
 
       <div className="right-section">

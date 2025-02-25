@@ -6,51 +6,110 @@ const {
     Status,
     Log,
     Manager,
+    Domain,
 } = require("../models/index.js");
 const { Op } = require("sequelize");
 const { sendNotificationEmail } = require("../utils/sendEmailNotification.js");
+const { getDescendantDomains } = require("../utils/getDescendantDomain.js");
 
 module.exports.getLicenses = async (req, res) => {
     try {
-        
-        const licenses = await License.findAll({
-            attributes: {
-                exclude: [
-                    "createdAt",
-                    "updatedAt",
-                    "user_id",
-                    "vendor_id",
-                    "category_id",
-                    "status_id",
-                    "manager_id",
+        const { domain_id, isSuperAdmin } = req.user;
+        const descendantDomains = await getDescendantDomains(domain_id);
+        descendantDomains.push(domain_id);
+        let licenses;
+        // console.log(descendantDomains);
+        {isSuperAdmin ? 
+            licenses = await License.findAll({
+                attributes: {
+                    exclude: [
+                        "createdAt",
+                        "updatedAt",
+                        "user_id",
+                        "vendor_id",
+                        "category_id",
+                        "status_id",
+                        "manager_id",
+                        "domain_id",
+                    ],
+                },
+                include: [
+                    {
+                        model: User,
+                        attributes: ["username"],
+                    },
+                    {
+                        model: Vendor,
+                        attributes: ["vendor_name"],
+                    },
+                    {
+                        model: Category,
+                        attributes: ["category_name"],
+                    },
+                    {
+                        model: Status,
+                        attributes: ["status_name"],
+                    },
+                    {
+                        model: Manager,
+                        attributes: ["name", "email"],
+                    },
+                    {
+                        model: Domain,
+                        attributes: ["domain_name"],
+                    },
                 ],
-            },
-            include: [
-                {
-                    model: User,
-                    attributes: ["username"],
+                raw: true,
+                order: [["expiry_date", "ASC"]],
+            })
+            :
+            licenses = await License.findAll({
+                attributes: {
+                    exclude: [
+                        "createdAt",
+                        "updatedAt",
+                        "user_id",
+                        "vendor_id",
+                        "category_id",
+                        "status_id",
+                        "manager_id",
+                        "domain_id",
+                    ],
                 },
-                {
-                    model: Vendor,
-                    attributes: ["vendor_name"],
-                },
-                {
-                    model: Category,
-                    attributes: ["category_name"],
-                },
-                {
-                    model: Status,
-                    attributes: ["status_name"],
-                },
-                {
-                    model: Manager,
-                    attributes: ["name", "email"],
-                },
-            ],
-            raw: true,
-            order: [["expiry_date", "ASC"]],
-        });
-
+                include: [
+                    {
+                        model: User,
+                        attributes: ["username"],
+                    },
+                    {
+                        model: Vendor,
+                        attributes: ["vendor_name"],
+                    },
+                    {
+                        model: Category,
+                        attributes: ["category_name"],
+                    },
+                    {
+                        model: Status,
+                        attributes: ["status_name"],
+                    },
+                    {
+                        model: Manager,
+                        attributes: ["name", "email"],
+                    },
+                    {
+                        model: Domain,
+                        attributes: ["domain_name"],
+                        where: {
+                            domain_id: { [Op.in]: descendantDomains },
+                        },
+                    },
+                ],
+                raw: true,
+                order: [["expiry_date", "ASC"]],
+            });
+        }
+        
         if (!licenses)
             return res.status(400).send({ error: "Licenses not found" });
 
@@ -67,11 +126,19 @@ module.exports.createLicense = async (req, res) => {
         "Vendor.vendor_id": vendor_id,
         "Category.category_id": category_id,
         "Manager.manager_id": manager_id,
+        "Domain.domain_id": domain_id,
     } = req.body;
     const user = req.user;
 
     try {
-        if (!title || !expiry_date || !vendor_id || !category_id)
+        if (
+            !title ||
+            !expiry_date ||
+            !vendor_id ||
+            !category_id ||
+            !manager_id ||
+            !domain_id
+        )
             return res.status(400).send({ error: "All fields are required" });
 
         let status_id = 1;
@@ -87,6 +154,7 @@ module.exports.createLicense = async (req, res) => {
             status_id,
             user_id: user.user_id,
             manager_id,
+            domain_id,
         });
 
         license = await License.findOne({
@@ -100,6 +168,7 @@ module.exports.createLicense = async (req, res) => {
                     "category_id",
                     "status_id",
                     "manager_id",
+                    "domain_id",
                 ],
             },
             include: [
@@ -122,6 +191,10 @@ module.exports.createLicense = async (req, res) => {
                 {
                     model: Manager,
                     attributes: ["name", "email"],
+                },
+                {
+                    model: Domain,
+                    attributes: ["domain_name"],
                 },
             ],
             raw: true,
@@ -170,6 +243,7 @@ module.exports.editLicense = async (req, res) => {
         "Vendor.vendor_id": vendor_id,
         "Category.category_id": category_id,
         "Manager.manager_id": manager_id,
+        "Domain.domain_id": domain_id,
     } = req.body;
     const user_id = req.user.user_id;
 
@@ -190,6 +264,7 @@ module.exports.editLicense = async (req, res) => {
         license.category_id = category_id;
         license.status_id = status_id;
         license.manager_id = manager_id;
+        license.domain_id = domain_id;
 
         await license.save();
 
@@ -204,6 +279,7 @@ module.exports.editLicense = async (req, res) => {
                     "category_id",
                     "status_id",
                     "manager_id",
+                    "domain_id",
                 ],
             },
             include: [
@@ -226,6 +302,10 @@ module.exports.editLicense = async (req, res) => {
                 {
                     model: Manager,
                     attributes: ["name", "email"],
+                },
+                {
+                    model: Domain,
+                    attributes: ["domain_name"],
                 },
             ],
             raw: true,
@@ -334,42 +414,44 @@ module.exports.updateLicenseExpiry = async (license) => {
 
 module.exports.getLicExpiry = async (req, res) => {
     try {
+        const { domain_id } = req.user;
         const licExpInWeek = await License.findAll({
             where: {
-            expiry_date: {
-                [Op.gt]: new Date(), // Greater than today
-                [Op.lte]: new Date(
-                new Date().setDate(new Date().getDate() + 7)
-                ), // Less than or equal to 7 days from now
-            },
+                expiry_date: {
+                    [Op.gt]: new Date(), // Greater than today
+                    [Op.lte]: new Date(
+                        new Date().setDate(new Date().getDate() + 7)
+                    ), // Less than or equal to 7 days from now
+                },
+                domain_id: domain_id,
             },
             attributes: {
-            exclude: [
-                "createdAt",
-                "updatedAt",
-                "user_id",
-                "vendor_id",
-                "category_id",
-                "status_id",
-            ],
+                exclude: [
+                    "createdAt",
+                    "updatedAt",
+                    "user_id",
+                    "vendor_id",
+                    "category_id",
+                    "status_id",
+                ],
             },
             include: [
-            {
-                model: User,
-                attributes: ["username"],
-            },
-            {
-                model: Vendor,
-                attributes: ["vendor_name"],
-            },
-            {
-                model: Category,
-                attributes: ["category_name"],
-            },
-            {
-                model: Status,
-                attributes: ["status_name"],
-            },
+                {
+                    model: User,
+                    attributes: ["username"],
+                },
+                {
+                    model: Vendor,
+                    attributes: ["vendor_name"],
+                },
+                {
+                    model: Category,
+                    attributes: ["category_name"],
+                },
+                {
+                    model: Status,
+                    attributes: ["status_name"],
+                },
             ],
             raw: true,
         });
@@ -381,6 +463,7 @@ module.exports.getLicExpiry = async (req, res) => {
                     [Op.gte]: new Date().setHours(0, 0, 0, 0),
                     [Op.lte]: new Date().setHours(23, 59, 59, 999),
                 },
+                domain_id: domain_id,
             },
             attributes: {
                 exclude: [
