@@ -25,7 +25,6 @@ import {
     AccordionButton,
     AccordionPanel,
     Badge,
-    Tooltip,
     useColorModeValue,
 } from "@chakra-ui/react";
 import {
@@ -205,7 +204,7 @@ const DomainManagement: React.FC = () => {
     };
 
     return (
-        <Box p={6} bg={bgColor}>
+        <Box p={6} bg={bgColor} minHeight={"80vh"}>
             <ToastContainer theme="colored" stacked={true} autoClose={3000} />
             <VStack align="stretch" spacing={6}>
                 <Flex

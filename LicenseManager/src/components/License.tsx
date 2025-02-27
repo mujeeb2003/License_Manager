@@ -133,7 +133,7 @@ function LicenseComponent() {
   return (
     <>
       <ToastContainer autoClose={3000} theme="dark" stacked={true} />
-      <Box className="bottom-container license" display={'flex'} flexDirection={'column'} p={4}>
+      <Box className="bottom-container license" display={'flex'} flexDirection={'column'} p={4} minHeight={"80vh"}>
         <Flex justifyContent={'space-between'} alignItems={'center'} direction={"row"}>
           <span>
             <h1 style={{ color: 'var(--dark)', fontSize: '30px', fontWeight: 'bold' }}>

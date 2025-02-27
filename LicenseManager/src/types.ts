@@ -38,7 +38,8 @@ export type licenseState = {
     error:string,
     loading:boolean,
     licExpInWeek:License[],
-    newLic:License[]
+    newLic:License[],
+    eligibleManagerUsers: User[];
 }
 
 export type License = {
@@ -87,7 +88,9 @@ export type Manager = {
     manager_id: number;
     name: string;
     email: string;
-    Domains: Domain[];
+    user_id: number;
+    Domains: Domain;
+    domain_id:number;
 }
 
 export type licenseForm = {
@@ -112,10 +115,10 @@ export type vendorForm = {
     domain_ids:number[]
 }
 
-export type managerForm = {
-    name: string;
-    email: string;
-    domain_ids: number[];
+export interface managerForm {
+    domain_id?: number;
+    user_id?: number | null;
+    manager_id?: number;
 }
 
 export type Domain = {

@@ -21,6 +21,7 @@ const initialState: licenseState = {
     domains: [],
     error: "",
     loading: false,
+    eligibleManagerUsers: [],
 };
 
 export const getLicenses = createAsyncThunk(
@@ -237,12 +238,12 @@ export const editVendor = createAsyncThunk(
     }
 );
 
-export const editManager = createAsyncThunk(
-    "license/editManager",
-    async (data: managerForm & { manager_id: number }, { rejectWithValue }) => {
-        console.log("Manager", data);
+export const removeManager = createAsyncThunk(
+    "license/removeManager",
+    async (data: managerForm, { rejectWithValue }) => {
+        // console.log("Manager", data);
         try {
-            const res = await api.post(`/editManager`, data);
+            const res = await api.post(`/removeManager`, data);
             return res.data;
         } catch (error: any) {
             if (error.response && error.response.data)
@@ -281,6 +282,20 @@ export const getLicenseNot = createAsyncThunk(
         }
     }
 );
+
+export const getEligibleManagerUsers = createAsyncThunk(
+    "license/getEligibleManagerUsers",
+    async (_undefined, { rejectWithValue }) => {
+      try {
+        const res = await api.get(`/getEligibleManagerUsers`);
+        return res.data;
+      } catch (error: any) {
+        if (error.response && error.response.data)
+          return rejectWithValue(error.response.data);
+        return rejectWithValue({ error: error.message });
+      }
+    }
+  );
 
 const licenseSlice = createSlice({
     initialState,
@@ -493,18 +508,27 @@ const licenseSlice = createSlice({
             state.loading = false;
             state.error = payload as string;
         });
-        builder.addCase(editManager.pending, (state) => {
+        builder.addCase(removeManager.pending, (state) => {
             state.loading = true;
         });
-        builder.addCase(editManager.fulfilled, (state, { payload }) => {
+        builder.addCase(removeManager.fulfilled, (state, { payload }) => {
             state.loading = false;
-            state.managers = state.managers.map((manager) => {
-                return manager.manager_id == payload.manager.manager_id
-                    ? payload.manager
-                    : manager;
+            state.managers = state.managers.filter((manager) => {
+                return manager.manager_id !== payload.manager_id;
             });
         });
-        builder.addCase(editManager.rejected, (state, { payload }) => {
+        builder.addCase(removeManager.rejected, (state, { payload }) => {
+            state.loading = false;
+            state.error = payload as string;
+        });
+        builder.addCase(getEligibleManagerUsers.pending, (state) => {
+            state.loading = true;
+        });
+        builder.addCase(getEligibleManagerUsers.fulfilled, (state, { payload }) => {
+            state.loading = false;
+            state.eligibleManagerUsers = payload.eligibleUsers;
+        });
+        builder.addCase(getEligibleManagerUsers.rejected, (state, { payload }) => {
             state.loading = false;
             state.error = payload as string;
         });

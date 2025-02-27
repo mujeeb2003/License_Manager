@@ -17,7 +17,7 @@ encryptEnvPassword("SMTP_PASS");
 
 require("./cron/licenseCron");
 const PORT = process.env.PORT || 5000;
-const { running } = require("./licenseChecker-obfuscated.js");
+// const { running } = require("./licenseChecker-obfuscated.js");
 
 const db = require("./config/databaseConfig.js");
 
@@ -33,7 +33,7 @@ app.use(cookieParser());
 app.use(express.json());
 app.use(bodyParser.json());
 
-app.use(running);
+// app.use(running);
 app.use("/", router);
 app.use("/license", licenseRouter);
 app.use("/user", userRouter);

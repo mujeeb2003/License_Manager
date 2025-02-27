@@ -6,10 +6,10 @@ require('dotenv').config();
 
 const algorithm = 'aes-256-cbc';
 const key = crypto.createHash('sha256').update(process.env.ENCRYPTION_KEY).digest();
-const iv = crypto.randomBytes(16);
 
 function encryptPassword(password) {
     console.log('Encrypting password...');
+    const iv = crypto.randomBytes(16);
     let cipher = crypto.createCipheriv(algorithm, key, iv);
     let encrypted = cipher.update(password, 'utf8', 'hex');
     encrypted += cipher.final('hex');
@@ -21,9 +21,9 @@ function decryptPassword(encryptedPassword) {
         return encryptedPassword;
     }
 
-    let [iv, encrypted] = encryptedPassword.split(':');
-    iv = Buffer.from(iv, 'hex');
-    encrypted = Buffer.from(encrypted, 'hex');
+    let [ivHex, encrypted] = encryptedPassword.split(':');
+    let iv = Buffer.from(ivHex, 'hex');
+    // encrypted = Buffer.from(encrypted, 'hex');
     let decipher = crypto.createDecipheriv(algorithm, key, iv);
     let decrypted = decipher.update(encrypted, 'hex', 'utf8');
     decrypted += decipher.final('utf8');

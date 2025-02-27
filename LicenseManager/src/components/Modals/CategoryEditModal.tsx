@@ -77,7 +77,7 @@ export default function CategoryEditModal({ category, onSave }: { category:Categ
           <DrawerContent>
             <DrawerCloseButton />
             <DrawerHeader borderBottomWidth='1px'>
-              Edit License
+              Edit Category
             </DrawerHeader>
   
             <DrawerBody>

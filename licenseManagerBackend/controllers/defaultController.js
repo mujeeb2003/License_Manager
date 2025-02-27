@@ -3,6 +3,7 @@ const {
     Vendor,
     License,
     Log,
+    User,
     Manager,
     Domain,
     DomainManager,
@@ -15,7 +16,7 @@ const { getDescendantDomains } = require("../utils/getDescendantDomain.js");
 
 module.exports.getLicenseopt = async (req, res) => {
     try {
-        const { isAdmin, isSuperAdmin, domain_id } = req.user;
+        const { isSuperAdmin, domain_id } = req.user;
         const descendantDomains = await getDescendantDomains(domain_id);
         descendantDomains.push(domain_id);
 
@@ -54,7 +55,7 @@ module.exports.getLicenseopt = async (req, res) => {
             });
             domains = await Domain.findAll({
                 where: {
-                    domain_id: { [Op.in]: [...descendantDomains] }
+                    domain_id: { [Op.in]: [...descendantDomains] },
                 },
             });
             // console.log(domains);
@@ -265,80 +266,76 @@ module.exports.editCategory = async (req, res) => {
 };
 
 module.exports.createManager = async (req, res) => {
-    const { name, email, domain_ids } = req.body;
+    const { user_id, domain_id } = req.body;
+
     try {
-        if (!name || !email || !domain_ids || !domain_ids.length)
+        if (!user_id)
             return res.status(400).send({ error: "All fields are required" });
 
-        Manager.findOne({ where: { email } }).then((manager) => {
-            if (manager) {
-                return res.status(400).send({ error: "Manager with same email already exists" });
-            }
+        // Find the user to get their details
+        const user = await User.findByPk(user_id);
+        if (!user) {
+            return res.status(404).send({ error: "User not found" });
+        }
+
+        // Check if this user already has a manager profile
+        const existingManager = await Manager.findOne({
+            where: { user_id: user_id },
         });
 
-        const manager = await Manager.create({ name, email });
+        if (existingManager) {
+            return res
+                .status(400)
+                .send({ error: "User already has a manager profile" });
+        }
+
+        // Create manager using user data
+        const manager = await Manager.create({
+            name: user.username,
+            email: user.email,
+            user_id: user.user_id,
+            domain_id: domain_id,
+        });
 
         if (!manager)
             return res.status(400).send({ error: "Manager not created" });
 
-        // Create domain manager associations
-        const domainManagerAssociations = domain_ids.map((domain_id) => ({
-            domain_id,
-            manager_id: manager.manager_id,
-        }));
-
-        await DomainManager.bulkCreate(domainManagerAssociations);
-
-        // Fetch the created manager with domains
-        const managerWithDomains = await Manager.findOne({
+        // Fetch the created manager with domains and user info
+        const managerWithDetails = await Manager.findOne({
             where: { manager_id: manager.manager_id },
-            include: [Domain],
+            include: [
+                { model: Domain },
+                // { model: User, attributes: ['username', 'email', 'isAdmin'] }
+            ],
         });
 
-        return res.status(200).send({ manager: managerWithDomains });
+        return res.status(200).send({ manager: managerWithDetails, message: "Manager created successfully" });
     } catch (error) {
         return res.status(500).send({ error: error.message });
     }
 };
 
-module.exports.editManager = async (req, res) => {
-    const { manager_id, name, email, domain_ids } = req.body;
+module.exports.removeManager = async (req, res) => {
+    const { manager_id } = req.body;
 
     try {
-        let manager = await Manager.findOne({ where: { manager_id } });
+        if (!manager_id)
+            return res.status(400).send({ error: "All fields are required" });
+
+        const manager = await Manager.findOne({
+            where: { manager_id },
+        });
 
         if (!manager)
             return res.status(404).send({ error: "Manager not found" });
 
-        // Update basic manager info
-        manager.name = name;
-        manager.email = email;
-
-        await manager.save();
-
-        // Update domain associations if domain_ids are provided
-        if (domain_ids && domain_ids.length) {
-            // Remove all existing domain associations
-            await DomainManager.destroy({
-                where: { manager_id },
-            });
-
-            // Create new domain manager associations
-            const domainManagerAssociations = domain_ids.map((domain_id) => ({
-                domain_id,
-                manager_id,
-            }));
-
-            await DomainManager.bulkCreate(domainManagerAssociations);
-        }
-
-        // Fetch updated manager with domains
-        const updatedManager = await Manager.findOne({
-            where: { manager_id },
-            include: [Domain],
-        });
-
-        return res.status(200).send({ manager: updatedManager });
+        const license = await License.findOne({ where: { manager_id }})
+        if (license)
+            return res.status(400).send({ error: "Cannot remove Manager, Manager has licenses" });
+        
+        await manager.destroy();
+        
+        return res.status(200).send({ manager_id: manager_id, message:"Manager removed successfully" });
     } catch (error) {
         return res.status(500).send({ error: error.message });
     }
@@ -366,7 +363,7 @@ module.exports.createDomain = async (req, res) => {
 
 module.exports.editDomain = async (req, res) => {
     const { domain_name, parent_domain_id, domain_id } = req.body;
-    console.log(domain_name, parent_domain_id, domain_id);
+    // console.log(domain_name, parent_domain_id, domain_id);
     try {
         if (!domain_name)
             return res.status(400).send({ error: "Domain Name is required" });
@@ -404,6 +401,57 @@ module.exports.deleteDomain = async (req, res) => {
             domain: { domain_id: domain_id },
             message: "Domain Deleted Successfully",
         });
+    } catch (error) {
+        return res.status(500).send({ error: error.message });
+    }
+};
+
+module.exports.getEligibleManagerUsers = async (req, res) => {
+    try {
+        const { domain_id, isSuperAdmin, isAdmin } = req.user;
+
+        if (!isAdmin && !isSuperAdmin) {
+            return res.status(403).send({ error: "Not authorized" });
+        }
+
+        // Get all descendant domains
+        const descendantDomains = await getDescendantDomains(domain_id);
+        descendantDomains.push(domain_id);
+
+        // Find all users who don't already have manager profiles
+        const existingManagerUserIds = await Manager.findAll({
+            attributes: ["user_id"],
+            where: {
+                user_id: { [Op.ne]: null }, // Only get those with user_id
+            },
+        });
+
+        const excludedUserIds = existingManagerUserIds.map((m) => m.user_id);
+
+        // Query for eligible users
+        let userQueryOptions = {
+            attributes: ["user_id", "username", "email", "domain_id"],
+            include: [
+                {
+                    model: Domain,
+                    attributes: ["domain_name"],
+                },
+            ],
+            where: {
+                isDisable: false, // Only active users
+                user_id: { [Op.notIn]: excludedUserIds },
+            },
+            raw: true,
+        };
+
+        // Filter by domains based on admin status
+        if (!isSuperAdmin) {
+            userQueryOptions.where.domain_id = { [Op.in]: descendantDomains };
+        }
+
+        const eligibleUsers = await User.findAll(userQueryOptions);
+
+        return res.status(200).send({ eligibleUsers });
     } catch (error) {
         return res.status(500).send({ error: error.message });
     }

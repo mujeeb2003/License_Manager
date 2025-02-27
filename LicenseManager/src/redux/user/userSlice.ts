@@ -2,7 +2,7 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import type { userState } from "../../types";
 import api from "../../utils/axiosUtil";
 import axios from "axios";
-import {setToken, removeToken, getToken} from "../../utils/tokenUtil";
+import { setToken, removeToken, getToken } from "../../utils/tokenUtil";
 
 const initialState: userState = {
     user: {
@@ -21,7 +21,7 @@ const initialState: userState = {
     error: "",
 };
 
-// const API_URI = import.meta.env.VITE_API_URL || "/api";
+const API_URI = import.meta.env.VITE_API_URL || "/api";
 export const userLogin = createAsyncThunk(
     "user/userLogin",
     async (
@@ -29,7 +29,7 @@ export const userLogin = createAsyncThunk(
         { rejectWithValue }
     ) => {
         try {
-            const res = await axios.post(`/api/user/login`, credentials);
+            const res = await axios.post(`${API_URI}/user/login`, credentials);
             return res.data;
         } catch (err: any) {
             if (err.response && err.response.data) {
@@ -47,7 +47,10 @@ export const userSignup = createAsyncThunk(
         { rejectWithValue }
     ) => {
         try {
-            const res = await axios.post(`/api/user/register`, credentials);
+            const res = await axios.post(
+                `${API_URI}/user/register`,
+                credentials
+            );
             return res.data;
         } catch (err: any) {
             if (err.response && err.response.data) {
@@ -77,7 +80,9 @@ export const logoutUser = createAsyncThunk(
     "user/logoutUser",
     async (_undefined, { rejectWithValue }) => {
         try {
-            api.defaults.headers.common["Authorization"] = `Bearer ${getToken()}`;
+            api.defaults.headers.common[
+                "Authorization"
+            ] = `Bearer ${getToken()}`;
             const res = await api.get(`/user/logoutUser`);
             // console.log("from redux",res);
             return res.data;
@@ -166,13 +171,38 @@ export const updateUser = createAsyncThunk(
     }
 );
 
-export const assignDomain = createAsyncThunk(
-    "user/assignDomain",
+export const addUser = createAsyncThunk(
+    "user/addUser",
     async (
-        credentials: { user_id: number; domain_id: number },
+        credentials: {
+            email: string;
+            username: string;
+            password: string;
+            isAdmin: boolean;
+            domain_id: number | null;
+        },
         { rejectWithValue }
     ) => {
         try {
+            const res = await api.post(`/user/addUser`, credentials);
+            return res.data;
+        } catch (error: any) {
+            if (error.response && error.response.data)
+                return rejectWithValue(error.response.data);
+            rejectWithValue({ error: error.message });
+        }
+    }
+);
+
+export const assignDomain = createAsyncThunk(
+    "user/assignDomain",
+    async (
+        credentials: { user_id: number; domain_id: number | null },
+        { rejectWithValue }
+    ) => {
+        try {
+            credentials.domain_id =
+                credentials.domain_id == 0 ? null : credentials.domain_id;
             const res = await api.post(`/user/assignDomain`, credentials);
             return res.data;
         } catch (error: any) {
@@ -316,13 +346,25 @@ const userSlice = createSlice({
         builder.addCase(assignDomain.fulfilled, (state, { payload }) => {
             state.loading = false;
             state.users.forEach((user) => {
-                user.user_id === payload.user.user_id
-                    ? (user["Domain.domain_name"] =
-                          payload.user["Domain.domain_name"])
-                    : null;
+                console.log(user, payload.user);
+                if (user.user_id === payload.user.user_id) {
+                    user.domain_id = payload.user.domain_id;
+                    user["Domain.domain_name"] = payload.user["Domain.domain_name"];
+                } else null;
             });
         });
         builder.addCase(assignDomain.rejected, (state, { payload }) => {
+            state.loading = false;
+            state.error = payload as string;
+        });
+        builder.addCase(addUser.pending, (state) => {
+            state.loading = true;
+        });
+        builder.addCase(addUser.fulfilled, (state, { payload }) => {
+            state.loading = false;
+            state.users.push(payload.user);
+        });
+        builder.addCase(addUser.rejected, (state, { payload }) => {
             state.loading = false;
             state.error = payload as string;
         });

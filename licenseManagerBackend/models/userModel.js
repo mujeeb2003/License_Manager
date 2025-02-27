@@ -41,6 +41,14 @@ const User = db.define('User', {
             model: 'domains',
             key: 'domain_id'
         }
+    },
+    createdBy: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        references:{
+            model:'users',
+            key:'user_id'
+        }
     }
 }, {
     tableName: 'users'

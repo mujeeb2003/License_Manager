@@ -99,7 +99,7 @@ const VendorComponent: React.FC = () => {
                 className="bottom-container license"
                 display={"flex"}
                 flexDirection={"column"}
-                p={4}
+                p={4} minHeight={"80vh"}
             >
                 <Flex
                     justifyContent={"space-between"}

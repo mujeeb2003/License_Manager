@@ -13,11 +13,10 @@ import { getLoggedinUser } from "./redux/user/userSlice";
 import { useEffect } from "react";
 import UserManagementComponent from "./components/UserManagement";
 import ProfilePage from "./components/Profile";
-import Managers from "./components/Managers";
 import DomainManagement from "./components/Domain";
 
 function App() {
-  const {isSuperAdmin,isAdmin} = useSelector((state:RootState)=>state.user);
+  const {isAdmin} = useSelector((state:RootState)=>state.user);
   const dispatch = useDispatch<AppDispatch>();
 
   useEffect(() => {
@@ -43,7 +42,7 @@ function App() {
                   <Route path="/Vendors" element={<Vendor />} />
                   <Route path="/Category" element={<Category />} />
                   {isAdmin && <Route path="/userManagement" element={<UserManagementComponent />} />}
-                  {isAdmin && <Route path="/productManager" element={<Managers />} />}
+                  {/* {isAdmin && <Route path="/productManager" element={<Managers />} />} */}
                   {isAdmin && <Route path="/domains" element={<DomainManagement />} />}
                   <Route path="/profile" element={<ProfilePage />}/>
                 </Routes>
@@ -53,7 +52,13 @@ function App() {
           </Route>
         </Routes>
       </Router>
-      
+      <footer className="site-footer">
+        <div className="footer-content">
+          <p>
+            © {new Date().getFullYear()} Foresight Technologies. All rights reserved.
+          </p>
+        </div>
+      </footer>
     </>
   )
 }

@@ -9,10 +9,11 @@ const {
     editCategory,
     editVendor,
     createManager,
-    editManager,
     createDomain,
     deleteDomain,
     editDomain,
+    getEligibleManagerUsers,
+    removeManager,
 } = require("../controllers/defaultController.js");
 const { isLoggedIn, isAdmin, isSuperAdmin } = require("../middlewares/isLoggedin.js");
 
@@ -39,8 +40,10 @@ router.post("/editVendor", isLoggedIn, isAdmin, editVendor);
 
 router.post("/editCategory", isLoggedIn, isAdmin, editCategory);
 
-router.post("/editManager", isLoggedIn, isAdmin, editManager);
+router.post("/removeManager", isLoggedIn, isAdmin, removeManager);
 
 router.post("/editDomain", isLoggedIn, isAdmin, editDomain);
+
+router.get("/getEligibleManagerUsers", isLoggedIn, isAdmin, getEligibleManagerUsers);
 
 module.exports = router;

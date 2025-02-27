@@ -17,6 +17,14 @@ const Manager = db.define('Manager', {
         allowNull: false,
         unique: true
     },
+    user_id: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        references:{
+            model:'users',
+            key:"user_id"
+        }
+    }
 }, {
     tableName: 'managers'
 });
